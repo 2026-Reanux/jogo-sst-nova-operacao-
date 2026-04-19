@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campeão da Segurança | Plataforma Gamificada SST</title>
+
+  <!-- SheetJS para exportação do ranking -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root{
+      --azul:#0b2e59;
+      --azul-2:#123f75;
+      --verde:#17a34a;
+      --verde-2:#0f8b3b;
+      --branco:#ffffff;
+      --cinza:#eef3f8;
+      --cinza-2:#d9e3ef;
+      --texto:#18324a;
+      --vermelho:#d93025;
+      --amarelo:#f4b400;
+      --sombra:0 12px 30px rgba(11,46,89,.18);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eaf3fb 0%, #f8fbff 100%);
+      color:var(--texto);
+      min-height:100%;
+    }
+
+    body{
+      overflow-x:hidden;
+    }
+
+    .app{
+      max-width:1320px;
+      margin:0 auto;
+      padding:20px;
+    }
+
+    .fade-in{
+      animation:fadeIn .7s ease;
+    }
+
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(18px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    @keyframes floaty{
+      0%{transform:translateY(0)}
+      50%{transform:translateY(-10px)}
+      100%{transform:translateY(0)}
+    }
+
+    @keyframes pulseSoft{
+      0%{transform:scale(1)}
+      50%{transform:scale(1.03)}
+      100%{transform:scale(1)}
+    }
+
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)}
+      60%{transform:translateX(-5px)}
+      80%{transform:translateX(5px)}
+      100%{transform:translateX(0)}
+    }
+
+    .zoom-correct{
+      animation:pulseSoft .35s ease;
+    }
+
+    .shake-error{
+      animation:shake .35s ease;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,var(--azul),var(--azul-2));
+      border-radius:28px;
+      color:#fff;
+      padding:22px;
+      box-shadow:var(--sombra);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:22px;
+      align-items:center;
+    }
+
+    .hero h1{
+      margin:0 0 10px 0;
+      font-size:clamp(28px,4vw,44px);
+      line-height:1.05;
+    }
+
+    .hero p{
+      margin:8px 0;
+      font-size:16px;
+      line-height:1.5;
+      max-width:720px;
+    }
+
+    .hero-badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .badge{
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.22);
+      color:#fff;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:bold;
+    }
+
+    .brand-box{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:24px;
+      padding:18px;
+      min-height:260px;
+    }
+
+    .logo{
+      max-width:180px;
+      width:100%;
+      object-fit:contain;
+      filter:drop-shadow(0 6px 14px rgba(0,0,0,.18));
+    }
+
+    .mascots{
+      max-width:300px;
+      width:100%;
+      object-fit:contain;
+      animation:floaty 3.4s ease-in-out infinite;
+      filter:drop-shadow(0 12px 24px rgba(0,0,0,.20));
+    }
+
+    .topbar{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:18px;
+      margin-top:18px;
+      align-items:stretch;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:var(--radius);
+      box-shadow:var(--sombra);
+      padding:18px;
+      border:1px solid #e6edf5;
+    }
+
+    .card h2, .card h3{
+      margin-top:0;
+      color:var(--azul);
+    }
+
+    .player-form{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:12px;
+      align-items:end;
+    }
+
+    label{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+      font-weight:bold;
+      color:var(--azul);
+    }
+
+    input[type="text"]{
+      width:100%;
+      padding:14px 14px;
+      border:2px solid #d9e4f0;
+      border-radius:14px;
+      font-size:16px;
+      outline:none;
+      transition:.2s;
+      color:var(--texto);
+    }
+
+    input[type="text"]:focus{
+      border-color:var(--verde);
+      box-shadow:0 0 0 4px rgba(23,163,74,.12);
+    }
+
+    button{
+      border:none;
+      border-radius:14px;
+      cursor:pointer;
+      padding:13px 18px;
+      font-weight:bold;
+      font-size:15px;
+      transition:.2s;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--verde),var(--verde-2));
+      color:#fff;
+      box-shadow:0 8px 18px rgba(23,163,74,.25);
+    }
+
+    .btn-primary:hover{transform:translateY(-2px)}
+    .btn-secondary{
+      background:var(--azul);
+      color:#fff;
+    }
+    .btn-light{
+      background:#edf4fb;
+      color:var(--azul);
+      border:1px solid #d9e6f2;
+    }
+    .btn-danger{
+      background:var(--vermelho);
+      color:#fff;
+    }
+
+    .status-panel{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:18px;
+    }
+
+    .mini-card{
+      background:#fff;
+      border-radius:18px;
+      box-shadow:var(--sombra);
+      padding:16px;
+      border:1px solid #e6edf5;
+    }
+
+    .mini-card .label{
+      font-size:13px;
+      color:#5b7087;
+      margin-bottom:8px;
+      font-weight:bold;
+      text-transform:uppercase;
+      letter-spacing:.4px;
+    }
+
+    .mini-card .value{
+      font-size:28px;
+      color:var(--azul);
+      font-weight:800;
+    }
+
+    .mascot-talk{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:110px 1fr;
+      gap:14px;
+      align-items:center;
+      background:linear-gradient(135deg,#f4fbf7,#edf8ff);
+      border:1px solid #dcecf1;
+      border-radius:22px;
+      padding:14px;
+      box-shadow:var(--sombra);
+    }
+
+    .mascot-talk img{
+      width:100%;
+      max-width:100px;
+      animation:floaty 3.2s ease-in-out infinite;
+    }
+
+    .speech{
+      background:#fff;
+      border-radius:18px;
+      padding:14px 16px;
+      border-left:6px solid var(--verde);
+      color:var(--texto);
+      box-shadow:0 8px 18px rgba(18,63,117,.08);
+      line-height:1.5;
+    }
+
+    .modules{
+      margin-top:18px;
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px;
+    }
+
+    .module-card{
+      position:relative;
+      overflow:hidden;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:var(--sombra);
+      border:1px solid #e6edf5;
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      min-height:310px;
+    }
+
+    .module-card::before{
+      content:"";
+      position:absolute;
+      top:0; left:0; right:0;
+      height:7px;
+      background:linear-gradient(90deg,var(--azul),var(--verde));
+    }
+
+    .module-icon{
+      font-size:42px;
+      margin-bottom:10px;
+    }
+
+    .module-card h3{
+      margin:0 0 8px 0;
+      font-size:22px;
+    }
+
+    .module-card p{
+      line-height:1.5;
+      color:#48627c;
+      flex:1;
+    }
+
+    .pill-row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin:8px 0 16px;
+    }
+
+    .pill{
+      background:#edf4fb;
+      color:var(--azul);
+      border-radius:999px;
+      padding:7px 11px;
+      font-size:12px;
+      font-weight:bold;
+    }
+
+    .game-area{
+      display:none;
+      margin-top:20px;
+    }
+
+    .game-header{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .progress-wrap{
+      flex:1;
+      min-width:260px;
+    }
+
+    .progress-label{
+      font-size:14px;
+      font-weight:bold;
+      color:var(--azul);
+      margin-bottom:8px;
+    }
+
+    .progress{
+      height:14px;
+      background:#e3edf7;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .progress-bar{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--verde),#45c16e);
+      transition:.35s ease;
+    }
+
+    .scenario-card{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:20px;
+      background:#fff;
+      border-radius:24px;
+      box-shadow:var(--sombra);
+      padding:20px;
+      border:1px solid #e6edf5;
+    }
+
+    .scenario-left{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .scenario-tag{
+      display:inline-block;
+      background:#e8f5ec;
+      color:var(--verde-2);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:bold;
+      width:max-content;
+    }
+
+    .scenario-title{
+      margin:0;
+      color:var(--azul);
+      font-size:28px;
+    }
+
+    .scenario-desc{
+      background:#f7fbff;
+      border:1px solid #e1ebf5;
+      border-radius:18px;
+      padding:16px;
+      line-height:1.6;
+      color:#355069;
+    }
+
+    .risk-box{
+      background:#fff7e6;
+      border:1px solid #ffe3a8;
+      border-left:6px solid var(--amarelo);
+      border-radius:18px;
+      padding:14px 16px;
+      line-height:1.5;
+    }
+
+    .scenario-right{
+      background:linear-gradient(135deg,#f5fbff,#f7fff8);
+      border-radius:20px;
+      border:1px solid #dfeaf2;
+      padding:16px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      justify-content:center;
+    }
+
+    .question-title{
+      font-size:18px;
+      font-weight:800;
+      color:var(--azul);
+      margin-bottom:4px;
+    }
+
+    .options{
+      display:grid;
+      gap:12px;
+    }
+
+    .option-btn{
+      text-align:left;
+      background:#fff;
+      border:2px solid #dce8f3;
+      color:var(--texto);
+      border-radius:16px;
+      padding:14px;
+      font-size:15px;
+      font-weight:bold;
+    }
+
+    .option-btn:hover{
+      background:#f5fbff;
+      border-color:#b7d3ea;
+    }
+
+    .option-btn.correct{
+      background:#ebfff2;
+      border-color:var(--verde);
+      color:#0b6a31;
+    }
+
+    .option-btn.error{
+      background:#fff1f0;
+      border-color:var(--vermelho);
+      color:#a32620;
+    }
+
+    .feedback{
+      min-height:62px;
+      border-radius:18px;
+      padding:14px 16px;
+      line-height:1.5;
+      font-weight:bold;
+      display:none;
+    }
+
+    .feedback.ok{
+      display:block;
+      background:#ebfff2;
+      color:#0e6d33;
+      border:1px solid #bde8ca;
+    }
+
+    .feedback.fail{
+      display:block;
+      background:#fff1f0;
+      color:#9f221c;
+      border:1px solid #f0c2be;
+    }
+
+    .nav-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .ranking-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      overflow:hidden;
+      border-radius:14px;
+    }
+
+    .ranking-table th,
+    .ranking-table td{
+      padding:12px;
+      text-align:left;
+      border-bottom:1px solid #e7eef5;
+      font-size:14px;
+    }
+
+    .ranking-table th{
+      background:#f5f9fd;
+      color:var(--azul);
+    }
+
+    .ranking-empty{
+      padding:20px;
+      background:#f7fbff;
+      border-radius:14px;
+      color:#567086;
+      border:1px dashed #c8dae9;
+      margin-top:10px;
+    }
+
+    .footer-actions{
+      margin-top:18px;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .completion{
+      display:none;
+      margin-top:18px;
+      background:linear-gradient(135deg,#f2fff6,#eff8ff);
+      border:1px solid #d9ecdf;
+      border-radius:24px;
+      box-shadow:var(--sombra);
+      padding:20px;
+    }
+
+    .completion h2{
+      margin-top:0;
+      color:var(--azul);
+    }
+
+    .completion-score{
+      font-size:42px;
+      font-weight:900;
+      color:var(--verde-2);
+      margin:12px 0;
+    }
+
+    .selo{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:#e8f5ec;
+      color:var(--verde-2);
+      font-weight:800;
+      margin-bottom:12px;
+    }
+
+    .small{
+      font-size:13px;
+      color:#5d7186;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .module-banner{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      background:#f7fbff;
+      border:1px solid #e1ebf5;
+      border-radius:18px;
+      padding:12px 14px;
+      margin-bottom:12px;
+    }
+
+    .module-banner img{
+      width:72px;
+      animation:floaty 3s ease-in-out infinite;
+    }
+
+    .credit-line{
+      margin-top:18px;
+      font-size:12px;
+      color:#70849a;
+      text-align:center;
+    }
+
+    @media (max-width: 1100px){
+      .hero-grid,
+      .topbar,
+      .scenario-card{
+        grid-template-columns:1fr;
+      }
+
+      .modules{
+        grid-template-columns:1fr;
+      }
+    }
+
+    @media (max-width: 760px){
+      .status-panel{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .player-form{
+        grid-template-columns:1fr;
+      }
+
+      .mascot-talk{
+        grid-template-columns:1fr;
+      }
+
+      .scenario-title{
+        font-size:24px;
+      }
+    }
+
+    @media (max-width: 480px){
+      .status-panel{
+        grid-template-columns:1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app fade-in">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h1>Campeão da Segurança</h1>
+          <p>
+            Plataforma gamificada de SST para reforçar percepção de risco, comportamento seguro,
+            uso correto de EPI e tomada de decisão em situações operacionais.
+          </p>
+          <p>
+            Treine com simulações de empilhadeira, prensa e comportamento seguro em ambiente industrial.
+          </p>
+
+          <div class="hero-badges">
+            <span class="badge">Treinamento Interativo</span>
+            <span class="badge">Ranking Persistente</span>
+            <span class="badge">Certificado Automático</span>
+            <span class="badge">Exportação em Excel</span>
+          </div>
+        </div>
+
+        <div class="brand-box">
+          <img src="logo-renaux.png" alt="Logo Renaux" class="logo" />
+          <img src="mascotes-campeao.png" alt="Mascotes da Segurança" class="mascots" />
+        </div>
+      </div>
+    </section>
+
+    <section class="topbar">
+      <div class="card">
+        <h2>Identificação do Colaborador</h2>
+        <div class="player-form">
+          <div>
+            <label for="playerName">Digite seu nome para iniciar</label>
+            <input type="text" id="playerName" placeholder="Ex.: Flávia Valença" />
+          </div>
+          <button class="btn-primary" id="savePlayerBtn">Salvar nome</button>
+        </div>
+        <p class="small" id="playerStatus">Nenhum colaborador identificado.</p>
+      </div>
+
+      <div class="card">
+        <h2>Painel de Desempenho</h2>
+        <div class="status-panel">
+          <div class="mini-card">
+            <div class="label">Colaborador</div>
+            <div class="value" id="hudName">-</div>
+          </div>
+          <div class="mini-card">
+            <div class="label">Pontuação</div>
+            <div class="value" id="hudScore">0</div>
+          </div>
+          <div class="mini-card">
+            <div class="label">Módulo</div>
+            <div class="value" id="hudModule">0/3</div>
+          </div>
+          <div class="mini-card">
+            <div class="label">Acertos</div>
+            <div class="value" id="hudHits">0</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="mascot-talk" id="mascotTalkBox">
+      <img src="mascotes-campeao.png" alt="Mascotes" />
+      <div class="speech" id="mascotSpeech">
+        Renauxito orienta: identifique seu nome, escolha um módulo e avance em todos os desafios para se tornar um Campeão da Segurança.
+      </div>
+    </section>
+
+    <section id="homeSection" class="fade-in">
+      <div class="modules">
+        <article class="module-card">
+          <div class="module-icon">🚜</div>
+          <h3>Simulação de Risco em Empilhadeira</h3>
+          <div class="pill-row">
+            <span class="pill">Atropelamento</span>
+            <span class="pill">Circulação segura</span>
+            <span class="pill">Atenção operacional</span>
+          </div>
+          <p>
+            Decida a melhor ação em cenários com movimentação interna de veículos,
+            interação com pedestres e condutas preventivas na operação.
+          </p>
+          <button class="btn-primary" onclick="startModule('empilhadeira')">Iniciar módulo</button>
+        </article>
+
+        <article class="module-card">
+          <div class="module-icon">🏭</div>
+          <h3>Simulação de Risco em Prensa</h3>
+          <div class="pill-row">
+            <span class="pill">Corte</span>
+            <span class="pill">Prensamento</span>
+            <span class="pill">Proteções</span>
+          </div>
+          <p>
+            Avalie cenários de risco em máquinas com partes móveis, dispositivos de segurança,
+            inspeção e resposta segura antes de operar.
+          </p>
+          <button class="btn-primary" onclick="startModule('prensa')">Iniciar módulo</button>
+        </article>
+
+        <article class="module-card">
+          <div class="module-icon">🦺</div>
+          <h3>Comportamento Seguro</h3>
+          <div class="pill-row">
+            <span class="pill">Ruído</span>
+            <span class="pill">EPI</span>
+            <span class="pill">Postura</span>
+          </div>
+          <p>
+            Fortaleça a cultura de segurança com decisões ligadas a percepção de risco,
+            postura correta, calor, ruído e atitudes preventivas no dia a dia.
+          </p>
+          <button class="btn-primary" onclick="startModule('comportamento')">Iniciar módulo</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="gameArea" class="game-area fade-in">
+      <div class="game-header">
+        <div class="progress-wrap">
+          <div class="progress-label" id="progressLabel">Progresso do módulo</div>
+          <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <button class="btn-light" onclick="backToHome()">Voltar ao painel</button>
+          <button class="btn-secondary" id="nextBtn" onclick="nextScenario()" disabled>Próxima situação</button>
+        </div>
+      </div>
+
+      <div class="module-banner">
+        <img src="mascotes-campeao.png" alt="Mascotes" />
+        <div>
+          <strong id="moduleBannerTitle">Módulo</strong><br>
+          <span class="small" id="moduleBannerText">Prepare-se para analisar o risco e escolher a conduta mais segura.</span>
+        </div>
+      </div>
+
+      <div class="scenario-card" id="scenarioCard">
+        <div class="scenario-left">
+          <span class="scenario-tag" id="scenarioTag">Simulação</span>
+          <h2 class="scenario-title" id="scenarioTitle">Título do cenário</h2>
+          <div class="scenario-desc" id="scenarioDescription"></div>
+          <div class="risk-box" id="riskReference"></div>
+          <div class="feedback" id="feedbackBox"></div>
+        </div>
+
+        <div class="scenario-right">
+          <div class="question-title" id="questionTitle">Qual é a melhor conduta?</div>
+          <div class="options" id="optionsBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="completionBox" class="completion fade-in">
+      <span class="selo">Missão concluída</span>
+      <h2>Parabéns! Você concluiu todos os módulos.</h2>
+      <p>
+        Seu desempenho foi registrado no ranking local. Agora você pode gerar seu certificado
+        e exportar o histórico da turma.
+      </p>
+      <div class="completion-score" id="finalScore">0 pontos</div>
+      <div class="footer-actions">
+        <button class="btn-primary" onclick="saveToRanking()">Salvar no ranking</button>
+        <button class="btn-secondary" onclick="generateCertificate()">Gerar certificado</button>
+        <button class="btn-light" onclick="resetJourney()">Jogar novamente</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:20px;">
+      <h2>Ranking dos Campeões</h2>
+      <p class="small">
+        O ranking fica salvo no navegador com localStorage.
+      </p>
+
+      <div class="footer-actions">
+        <button class="btn-secondary" onclick="exportRankingExcel()">Exportar ranking em Excel</button>
+        <button class="btn-light" onclick="renderRanking()">Atualizar ranking</button>
+        <button class="btn-danger" onclick="clearRanking()">Limpar ranking</button>
+      </div>
+
+      <div id="rankingContainer"></div>
+    </section>
+
+    <div class="credit-line">
+      Plataforma gamificada de SST | Pronta para DDS, treinamentos, campanhas e auditorias.
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // DADOS DOS MÓDULOS
+    // =========================
+    const modules = {
+      empilhadeira: {
+        title: "Simulação de Risco em Empilhadeira",
+        banner: "Latito recomenda atenção total à circulação, visibilidade e interação com pedestres.",
+        mascotLines: [
+          "Latito recomenda: empilhadeira e pedestre nunca disputam espaço.",
+          "Latito alerta: circulação segura começa antes de ligar o equipamento.",
+          "Latito orienta: via de pedestre é para pedestre. Atenção constante salva vidas."
+        ],
+        scenarios: [
+          {
+            tag: "Risco de Atropelamento",
+            title: "Pedestre atravessando a rota",
+            description: "Durante a movimentação interna, um colaborador decide cortar caminho e atravessar próximo à empilhadeira em movimento. O operador percebe a presença dele somente no último instante.",
+            risk: "Risco SST: atropelamento em vias de circulação interna. A prevenção depende de atenção constante, segregação de fluxo e uso das faixas destinadas à locomoção de pedestres.",
+            question: "Qual é a melhor conduta imediata e preventiva?",
+            options: [
+              { text: "Seguir normalmente, pois o pedestre deve sair da frente.", correct: false, feedback: "Conduta incorreta. A prioridade é eliminar o risco imediato e reforçar segregação segura entre veículo e pedestre." },
+              { text: "Reduzir, parar se necessário, garantir distância segura e reforçar o uso das faixas de pedestres.", correct: true, feedback: "Correto. Em áreas com circulação mista, a prevenção do atropelamento exige atenção, redução de velocidade e respeito às rotas seguras." },
+              { text: "Buzinar e manter a operação sem alterar a velocidade.", correct: false, feedback: "Incorreto. A buzina pode ser apoio, mas não substitui parada segura e controle efetivo da situação." }
+            ]
+          },
+          {
+            tag: "Conduta Preventiva",
+            title: "Visibilidade parcial da carga",
+            description: "A carga paletizada está acima da linha de visão frontal do operador. O trajeto inclui cruzamento interno com circulação de pessoas e outros equipamentos.",
+            risk: "Risco SST: colisão e atropelamento por redução de visibilidade durante a operação.",
+            question: "Qual é a decisão mais segura?",
+            options: [
+              { text: "Seguir com a carga elevada para enxergar melhor por baixo.", correct: false, feedback: "Incorreto. A carga deve permanecer estável e em condição segura de transporte, sem improvisos que aumentem o risco." },
+              { text: "Adequar a forma de deslocamento, garantir visibilidade segura e redobrar atenção em cruzamentos.", correct: true, feedback: "Correto. Quando a visibilidade é reduzida, a operação precisa ser ajustada para preservar controle e segurança do trajeto." },
+              { text: "Pedir que um colega caminhe na frente da empilhadeira o tempo todo.", correct: false, feedback: "Incorreto. Apoio pode ser necessário em situações específicas, mas a operação não pode depender de exposição desnecessária de outra pessoa ao risco." }
+            ]
+          },
+          {
+            tag: "Rotas Seguras",
+            title: "Área com fluxo misto",
+            description: "Na área fabril existem rotas de pedestres, empilhadeiras e movimentação de materiais. Um colaborador caminha fora da faixa por estar com pressa.",
+            risk: "Risco SST: atropelamento por circulação fora da rota definida.",
+            question: "Qual orientação deve prevalecer?",
+            options: [
+              { text: "Pedestres devem usar as faixas destinadas à locomoção e manter atenção constante.", correct: true, feedback: "Correto. O uso das rotas segregadas é uma medida essencial de prevenção de atropelamentos." },
+              { text: "A rota pode ser ignorada quando não há empilhadeira visível no momento.", correct: false, feedback: "Incorreto. A regra de circulação existe justamente para manter disciplina operacional contínua." },
+              { text: "Em caso de pressa, o mais importante é chegar rápido ao destino.", correct: false, feedback: "Incorreto. Pressa aumenta exposição ao risco e enfraquece a cultura de segurança." }
+            ]
+          },
+          {
+            tag: "Percepção de Risco",
+            title: "Empilhadeira parada, risco presente",
+            description: "Durante uma pausa operacional, a empilhadeira permanece posicionada em área de circulação. Alguns colaboradores passam muito próximos, distraídos com conversa e celular.",
+            risk: "Risco SST: interação insegura com equipamento e perda de percepção de risco no ambiente.",
+            question: "Qual é a melhor atitude?",
+            options: [
+              { text: "Manter distância segura do equipamento e evitar distrações em área operacional.", correct: true, feedback: "Correto. Mesmo quando o equipamento não está em movimento, o ambiente operacional exige atenção e conduta segura." },
+              { text: "Como a empilhadeira está parada, não há risco relevante.", correct: false, feedback: "Incorreto. A baixa percepção de risco em área operacional é uma das causas de desvio comportamental." },
+              { text: "É aceitável circular distraído se o operador não estiver no banco.", correct: false, feedback: "Incorreto. A disciplina de circulação segura deve ser mantida sempre." }
+            ]
+          },
+          {
+            tag: "Cultura de Segurança",
+            title: "Quase acidente no cruzamento",
+            description: "Um operador relata que quase houve colisão em um cruzamento interno porque outro equipamento surgiu em velocidade incompatível com a área.",
+            risk: "Risco SST: colisão interna e potencial atropelamento.",
+            question: "Qual resposta fortalece a cultura de segurança?",
+            options: [
+              { text: "Registrar o quase acidente, tratar o desvio e reforçar controles operacionais.", correct: true, feedback: "Correto. Quase acidentes devem ser tratados como oportunidade de prevenção." },
+              { text: "Ignorar, já que não houve dano nem lesão.", correct: false, feedback: "Incorreto. Ignorar quase acidentes impede correção antes que aconteça um evento grave." },
+              { text: "Conversar informalmente e não registrar para evitar desgaste.", correct: false, feedback: "Incorreto. Sem registro e ação, o risco permanece." }
+            ]
+          }
+        ]
+      },
+
+      prensa: {
+        title: "Simulação de Risco em Prensa",
+        banner: "Kadu avisa: máquina só opera com proteção, procedimento e atenção ao risco de corte e prensamento.",
+        mascotLines: [
+          "Kadu avisa: parte móvel desprotegida é risco grave.",
+          "Kadu orienta: segurança de máquina nunca pode ser burlada.",
+          "Kadu reforça: inspeção, parada de emergência e capacitação salvam mãos e vidas."
+        ],
+        scenarios: [
+          {
+            tag: "Corte e Prensamento",
+            title: "Proteção de máquina removida",
+            description: "Na prensa, a proteção foi retirada temporariamente para agilizar a produção. O operador afirma que conhece bem o equipamento e consegue trabalhar assim.",
+            risk: "Risco SST: corte e prensamento em partes móveis. Em máquinas similares, são indispensáveis barreiras físicas, enclausuramento, cortina de luz, comandos seguros e parada de emergência.",
+            question: "Qual decisão é correta?",
+            options: [
+              { text: "Permitir a operação, desde que seja por pouco tempo.", correct: false, feedback: "Incorreto. Não existe operação segura com supressão indevida de proteção." },
+              { text: "Interromper a atividade e restabelecer integralmente os dispositivos de segurança antes de operar.", correct: true, feedback: "Correto. A máquina só deve operar com seus sistemas de proteção íntegros e funcionais." },
+              { text: "Autorizar somente para operadores experientes.", correct: false, feedback: "Incorreto. Experiência não substitui proteção coletiva e procedimento seguro." }
+            ]
+          },
+          {
+            tag: "Inspeção Operacional",
+            title: "Falha no botão de emergência",
+            description: "No checklist pré-operacional, o operador percebe que a parada de emergência está com funcionamento duvidoso.",
+            risk: "Risco SST: falha crítica de controle em caso de emergência.",
+            question: "O que deve ser feito?",
+            options: [
+              { text: "Operar com cautela e solicitar manutenção no fim do turno.", correct: false, feedback: "Incorreto. Falha em dispositivo crítico exige bloqueio da operação até correção." },
+              { text: "Impedir o uso do equipamento e acionar manutenção imediatamente.", correct: true, feedback: "Correto. Dispositivos de parada são barreiras fundamentais e devem estar plenamente operantes." },
+              { text: "Avisar verbalmente a equipe e seguir o trabalho.", correct: false, feedback: "Incorreto. Comunicação sem bloqueio do risco não é suficiente." }
+            ]
+          },
+          {
+            tag: "Comportamento Seguro",
+            title: "Retirada manual de peça travada",
+            description: "Uma peça ficou presa na zona de operação. O operador pensa em alcançar rapidamente a área para destravar, sem desligar a máquina.",
+            risk: "Risco SST: amputação, corte ou prensamento ao acessar zona de perigo.",
+            question: "Qual é a conduta segura?",
+            options: [
+              { text: "Jamais acessar a zona de risco sem parada segura e procedimento definido.", correct: true, feedback: "Correto. Intervenção em área perigosa exige condição segura, bloqueio e procedimento adequado." },
+              { text: "Retirar rapidamente com a mão, aproveitando o intervalo do ciclo.", correct: false, feedback: "Incorreto. Essa é uma condição clássica de acidente grave em prensas." },
+              { text: "Pedir para um colega observar enquanto a peça é retirada.", correct: false, feedback: "Incorreto. Observação não elimina o risco mecânico." }
+            ]
+          },
+          {
+            tag: "Capacitação e Procedimento",
+            title: "Novo colaborador na máquina",
+            description: "Um colaborador recém-chegado foi designado para apoiar a operação da prensa, mas ainda não recebeu treinamento específico sobre o equipamento.",
+            risk: "Risco SST: operação insegura por capacitação insuficiente.",
+            question: "Qual deve ser a orientação?",
+            options: [
+              { text: "Permitir a atividade com supervisão informal do colega mais antigo.", correct: false, feedback: "Incorreto. Apoio informal não substitui capacitação e integração para a atividade." },
+              { text: "Garantir treinamento, orientação operacional e autorização antes da atuação.", correct: true, feedback: "Correto. Treinamento e procedimento operacional são medidas básicas de prevenção." },
+              { text: "Liberar somente as tarefas mais simples da máquina, sem formalização.", correct: false, feedback: "Incorreto. Toda atuação deve respeitar os requisitos de segurança do processo." }
+            ]
+          },
+          {
+            tag: "Disciplina Operacional",
+            title: "Produção pressionando por velocidade",
+            description: "O líder de turno relata atraso na produção e sugere reduzir etapas de inspeção para ganhar tempo no setup da prensa.",
+            risk: "Risco SST: aumento da probabilidade de falhas críticas por supressão de controles.",
+            question: "Qual postura é adequada?",
+            options: [
+              { text: "Manter os controles de segurança e recusar atalhos inseguros.", correct: true, feedback: "Correto. Nenhuma meta produtiva justifica a eliminação de controles de segurança." },
+              { text: "Reduzir parte da inspeção apenas naquele turno.", correct: false, feedback: "Incorreto. Desvio temporário continua sendo desvio e eleva o risco." },
+              { text: "Eliminar somente a checagem dos itens menos importantes.", correct: false, feedback: "Incorreto. A avaliação de segurança não pode ser arbitrariamente simplificada." }
+            ]
+          }
+        ]
+      },
+
+      comportamento: {
+        title: "Comportamento Seguro",
+        banner: "Renauxito orienta: EPI, atenção, ergonomia e percepção de risco fazem parte do comportamento seguro diário.",
+        mascotLines: [
+          "Renauxito orienta: o risco aumenta quando a rotina faz a pessoa relaxar.",
+          "Renauxito recomenda: usar EPI corretamente é parte do comportamento seguro.",
+          "Renauxito alerta: postura, ruído e calor também merecem atenção preventiva."
+        ],
+        scenarios: [
+          {
+            tag: "Ruído Ocupacional",
+            title: "Área com pressão sonora elevada",
+            description: "O colaborador atua em área industrial com presença de ruído de máquinas e equipamentos. Ele acha desconfortável usar o protetor auricular durante todo o turno.",
+            risk: "Risco SST: exposição ocupacional a ruído, com necessidade de controle e uso correto de proteção auditiva em ambientes ruidosos.",
+            question: "Qual é a conduta correta?",
+            options: [
+              { text: "Usar corretamente a proteção auditiva indicada para a atividade e permanecer atento à exposição.", correct: true, feedback: "Correto. Em ambiente com ruído ocupacional, o uso adequado da proteção auditiva é medida essencial de prevenção." },
+              { text: "Retirar o EPI sempre que o ruído parecer suportável.", correct: false, feedback: "Incorreto. A percepção subjetiva de conforto não substitui o controle ocupacional." },
+              { text: "Usar o protetor apenas quando houver fiscalização.", correct: false, feedback: "Incorreto. Segurança depende de comportamento consistente, não de fiscalização." }
+            ]
+          },
+          {
+            tag: "Ergonomia",
+            title: "Postura inadequada repetitiva",
+            description: "Durante a rotina, o colaborador realiza atividades em postura desconfortável por longos períodos, sem ajuste do posto e sem pausas.",
+            risk: "Risco SST: sobrecarga ergonômica e desconforto decorrente de postura inadequada.",
+            question: "Qual medida ajuda a prevenir esse risco?",
+            options: [
+              { text: "Ajustar o posto, orientar ergonomia e realizar pausas quando aplicável.", correct: true, feedback: "Correto. Ergonomia, adaptação do posto e pausas contribuem para reduzir a exposição." },
+              { text: "Manter a mesma postura para terminar mais rápido.", correct: false, feedback: "Incorreto. A pressa não reduz o risco ergonômico." },
+              { text: "Ignorar desconfortos, pois não são acidentes imediatos.", correct: false, feedback: "Incorreto. Riscos ergonômicos também exigem prevenção e gestão." }
+            ]
+          },
+          {
+            tag: "Calor",
+            title: "Ambiente termicamente desconfortável",
+            description: "Em um dia de maior carga térmica, o trabalhador relata desconforto e redução da concentração durante a atividade.",
+            risk: "Risco SST: exposição ao calor e queda de atenção durante a execução da tarefa.",
+            question: "Qual atitude mais segura?",
+            options: [
+              { text: "Reconhecer o desconforto, reforçar medidas preventivas e manter atenção ao estado do trabalhador.", correct: true, feedback: "Correto. Calor pode comprometer o desempenho e a atenção, exigindo gestão preventiva." },
+              { text: "Ignorar, porque calor faz parte do ambiente e não interfere na segurança.", correct: false, feedback: "Incorreto. O desconforto térmico pode comprometer percepção e resposta segura." },
+              { text: "Acelerar a tarefa para sair logo da área.", correct: false, feedback: "Incorreto. Pressa em condição desfavorável aumenta o risco." }
+            ]
+          },
+          {
+            tag: "Percepção de Risco",
+            title: "Rotina gerando excesso de confiança",
+            description: "Após meses sem incidentes, parte da equipe começa a tratar pequenos desvios como normais: caminhar distraído, pular orientação rápida e negligenciar detalhes de segurança.",
+            risk: "Risco SST: comportamento inseguro por normalização do desvio.",
+            question: "Qual é a melhor resposta?",
+            options: [
+              { text: "Reforçar a percepção de risco e manter disciplina operacional diariamente.", correct: true, feedback: "Correto. Segurança depende de constância, não apenas de experiência." },
+              { text: "Aceitar pequenos desvios se o setor estiver produtivo.", correct: false, feedback: "Incorreto. Pequenos desvios podem anteceder eventos graves." },
+              { text: "Agir somente quando houver quase acidente.", correct: false, feedback: "Incorreto. A prevenção deve acontecer antes do evento." }
+            ]
+          },
+          {
+            tag: "Atitude Segura",
+            title: "Colega sem proteção auditiva",
+            description: "Você percebe um colega entrando na área ruidosa sem o protetor auricular adequado.",
+            risk: "Risco SST: exposição indevida ao ruído por falha comportamental.",
+            question: "O que fortalece a cultura de segurança?",
+            options: [
+              { text: "Orientar imediatamente, interromper a exposição e reforçar o uso correto do EPI.", correct: true, feedback: "Correto. Cultura de segurança também envolve cuidado ativo com o colega." },
+              { text: "Não falar nada para evitar conflito.", correct: false, feedback: "Incorreto. O silêncio diante do desvio mantém a exposição ao risco." },
+              { text: "Esperar a liderança perceber.", correct: false, feedback: "Incorreto. O comportamento seguro deve ser responsabilidade compartilhada." }
+            ]
+          }
+        ]
+      }
+    };
+
+    // =========================
+    // ESTADO GLOBAL
+    // =========================
+    const state = {
+      playerName: "",
+      score: 0,
+      hits: 0,
+      currentModuleKey: null,
+      currentScenarioIndex: 0,
+      currentAnswered: false,
+      completedModules: [],
+      rankingKey: "campeaoSegurancaRankingV2"
+    };
+
+    // =========================
+    // ELEMENTOS
+    // =========================
+    const playerNameInput = document.getElementById("playerName");
+    const savePlayerBtn = document.getElementById("savePlayerBtn");
+    const playerStatus = document.getElementById("playerStatus");
+    const hudName = document.getElementById("hudName");
+    const hudScore = document.getElementById("hudScore");
+    const hudModule = document.getElementById("hudModule");
+    const hudHits = document.getElementById("hudHits");
+    const mascotSpeech = document.getElementById("mascotSpeech");
+    const homeSection = document.getElementById("homeSection");
+    const gameArea = document.getElementById("gameArea");
+    const progressBar = document.getElementById("progressBar");
+    const progressLabel = document.getElementById("progressLabel");
+    const moduleBannerTitle = document.getElementById("moduleBannerTitle");
+    const moduleBannerText = document.getElementById("moduleBannerText");
+    const scenarioTag = document.getElementById("scenarioTag");
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const scenarioDescription = document.getElementById("scenarioDescription");
+    const riskReference = document.getElementById("riskReference");
+    const questionTitle = document.getElementById("questionTitle");
+    const optionsBox = document.getElementById("optionsBox");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const nextBtn = document.getElementById("nextBtn");
+    const completionBox = document.getElementById("completionBox");
+    const finalScore = document.getElementById("finalScore");
+    const rankingContainer = document.getElementById("rankingContainer");
+
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
+    savePlayerBtn.addEventListener("click", savePlayerName);
+    playerNameInput.addEventListener("keydown", function(e){
+      if(e.key === "Enter") savePlayerName();
+    });
+
+    function init(){
+      renderHUD();
+      renderRanking();
+      speak("Renauxito orienta: informe seu nome e complete todos os módulos para gerar seu certificado institucional.");
+    }
+
+    function savePlayerName(){
+      const value = playerNameInput.value.trim();
+      if(!value){
+        alert("Digite o nome do colaborador para continuar.");
+        return;
+      }
+      state.playerName = value;
+      playerStatus.textContent = "Colaborador identificado com sucesso.";
+      speak("Kadu avisa: identificação confirmada. Agora escolha um módulo e comece sua jornada segura.");
+      renderHUD();
+    }
+
+    function renderHUD(){
+      hudName.textContent = state.playerName || "-";
+      hudScore.textContent = state.score;
+      hudModule.textContent = `${state.completedModules.length}/3`;
+      hudHits.textContent = state.hits;
+    }
+
+    function speak(text){
+      mascotSpeech.textContent = text;
+    }
+
+    function getRandomLine(moduleKey){
+      const lines = modules[moduleKey].mascotLines;
+      return lines[Math.floor(Math.random() * lines.length)];
+    }
+
+    // =========================
+    // FLUXO DO JOGO
+    // =========================
+    function startModule(moduleKey){
+      if(!state.playerName){
+        alert("Antes de iniciar, digite o nome do colaborador.");
+        playerNameInput.focus();
+        return;
+      }
+
+      state.currentModuleKey = moduleKey;
+      state.currentScenarioIndex = 0;
+      state.currentAnswered = false;
+
+      homeSection.style.display = "none";
+      completionBox.style.display = "none";
+      gameArea.style.display = "block";
+
+      moduleBannerTitle.textContent = modules[moduleKey].title;
+      moduleBannerText.textContent = modules[moduleKey].banner;
+      speak(getRandomLine(moduleKey));
+      renderScenario();
+    }
+
+    function renderScenario(){
+      const module = modules[state.currentModuleKey];
+      const scenario = module.scenarios[state.currentScenarioIndex];
+
+      scenarioTag.textContent = scenario.tag;
+      scenarioTitle.textContent = scenario.title;
+      scenarioDescription.textContent = scenario.description;
+      riskReference.innerHTML = `<strong>Base preventiva:</strong> ${scenario.risk}`;
+      questionTitle.textContent = scenario.question;
+      feedbackBox.className = "feedback";
+      feedbackBox.style.display = "none";
+      feedbackBox.textContent = "";
+      nextBtn.disabled = true;
+      optionsBox.innerHTML = "";
+
+      scenario.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${option.text}`;
+        btn.onclick = () => answerOption(btn, option.correct, option.feedback, scenario.options);
+        optionsBox.appendChild(btn);
+      });
+
+      const progressPercent = ((state.currentScenarioIndex) / module.scenarios.length) * 100;
+      progressBar.style.width = `${progressPercent}%`;
+      progressLabel.textContent = `Situação ${state.currentScenarioIndex + 1} de ${module.scenarios.length}`;
+    }
+
+    function answerOption(button, isCorrect, feedback, allOptions){
+      if(state.currentAnswered) return;
+      state.currentAnswered = true;
+
+      const optionButtons = document.querySelectorAll(".option-btn");
+      optionButtons.forEach(btn => btn.disabled = true);
+
+      if(isCorrect){
+        state.score += 10;
+        state.hits += 1;
+        button.classList.add("correct", "zoom-correct");
+        feedbackBox.className = "feedback ok";
+        feedbackBox.textContent = "✔ Resposta correta. " + feedback;
+        speak(getRandomLine(state.currentModuleKey));
+      } else {
+        button.classList.add("error", "shake-error");
+        feedbackBox.className = "feedback fail";
+        feedbackBox.textContent = "❌ Resposta incorreta. " + feedback;
+
+        // destaca a correta
+        allOptions.forEach((opt, idx) => {
+          if(opt.correct && optionButtons[idx]){
+            optionButtons[idx].classList.add("correct");
+          }
+        });
+
+        speak("Renauxito orienta: aprender com o erro também fortalece a cultura de segurança.");
+      }
+
+      feedbackBox.style.display = "block";
+      nextBtn.disabled = false;
+      renderHUD();
+    }
+
+    function nextScenario(){
+      const module = modules[state.currentModuleKey];
+      state.currentScenarioIndex += 1;
+      state.currentAnswered = false;
+
+      if(state.currentScenarioIndex >= module.scenarios.length){
+        finishModule();
+        return;
+      }
+
+      renderScenario();
+    }
+
+    function finishModule(){
+      if(!state.completedModules.includes(state.currentModuleKey)){
+        state.completedModules.push(state.currentModuleKey);
+      }
+
+      renderHUD();
+      progressBar.style.width = "100%";
+
+      const moduleName = modules[state.currentModuleKey].title;
+      speak(`Kadu avisa: módulo "${moduleName}" concluído com sucesso.`);
+
+      if(state.completedModules.length === 3){
+        gameArea.style.display = "none";
+        completionBox.style.display = "block";
+        finalScore.textContent = `${state.score} pontos`;
+        speak("Latito recomenda: excelente desempenho. Salve seu resultado, gere seu certificado e compartilhe a cultura de segurança.");
+      } else {
+        alert(`Módulo concluído: ${moduleName}\n\nEscolha o próximo módulo para continuar sua jornada.`);
+        backToHome();
+      }
+    }
+
+    function backToHome(){
+      gameArea.style.display = "none";
+      homeSection.style.display = "block";
+      speak("Renauxito orienta: escolha outro módulo para continuar acumulando pontos.");
+    }
+
+    function resetJourney(){
+      state.score = 0;
+      state.hits = 0;
+      state.currentModuleKey = null;
+      state.currentScenarioIndex = 0;
+      state.currentAnswered = false;
+      state.completedModules = [];
+      renderHUD();
+      completionBox.style.display = "none";
+      gameArea.style.display = "none";
+      homeSection.style.display = "block";
+      speak("Jornada reiniciada. Vamos treinar novamente com foco total em segurança.");
+    }
+
+    // =========================
+    // RANKING
+    // =========================
+    function getRanking(){
+      return JSON.parse(localStorage.getItem(state.rankingKey) || "[]");
+    }
+
+    function setRanking(data){
+      localStorage.setItem(state.rankingKey, JSON.stringify(data));
+    }
+
+    function saveToRanking(){
+      if(!state.playerName){
+        alert("Digite o nome do colaborador.");
+        return;
+      }
+
+      if(state.completedModules.length < 3){
+        alert("Conclua todos os módulos antes de salvar no ranking.");
+        return;
+      }
+
+      const ranking = getRanking();
+      const now = new Date();
+      const dateStr = now.toLocaleDateString("pt-BR");
+      const timeStr = now.toLocaleTimeString("pt-BR");
+
+      ranking.push({
+        nome: state.playerName,
+        pontuacao: state.score,
+        acertos: state.hits,
+        data: dateStr,
+        hora: timeStr
+      });
+
+      ranking.sort((a,b) => b.pontuacao - a.pontuacao || b.acertos - a.acertos);
+      setRanking(ranking);
+      renderRanking();
+      alert("Pontuação salva no ranking com sucesso.");
+    }
+
+    function renderRanking(){
+      const ranking = getRanking();
+
+      if(!ranking.length){
+        rankingContainer.innerHTML = `<div class="ranking-empty">Nenhum resultado registrado ainda.</div>`;
+        return;
+      }
+
+      let html = `
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Pontuação</th>
+              <th>Acertos</th>
+              <th>Data</th>
+              <th>Hora</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      ranking.forEach((item, index) => {
+        html += `
+          <tr>
+            <td><strong>${index + 1}</strong></td>
+            <td>${item.nome}</td>
+            <td><strong>${item.pontuacao}</strong></td>
+            <td>${item.acertos}</td>
+            <td>${item.data}</td>
+            <td>${item.hora}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      rankingContainer.innerHTML = html;
+    }
+
+    function clearRanking(){
+      const confirmClear = confirm("Deseja realmente apagar todo o ranking salvo?");
+      if(!confirmClear) return;
+      localStorage.removeItem(state.rankingKey);
+      renderRanking();
+      alert("Ranking apagado com sucesso.");
+    }
+
+    // =========================
+    // EXPORTAÇÃO EXCEL
+    // =========================
+    function exportRankingExcel(){
+      const ranking = getRanking();
+
+      if(!ranking.length){
+        alert("Não há dados no ranking para exportar.");
+        return;
+      }
+
+      if(typeof XLSX === "undefined"){
+        alert("A biblioteca SheetJS não foi carregada. Verifique sua conexão com a internet.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(ranking);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Ranking SST");
+      XLSX.writeFile(workbook, "ranking-campeao-da-seguranca.xlsx");
+    }
+
+    // =========================
+    // CERTIFICADO
+    // =========================
+    function generateCertificate(){
+      if(!state.playerName){
+        alert("Digite o nome do colaborador.");
+        return;
+      }
+
+      if(state.completedModules.length < 3){
+        alert("Conclua todos os módulos antes de gerar o certificado.");
+        return;
+      }
+
+      const today = new Date().toLocaleDateString("pt-BR");
+
+      const certWindow = window.open("", "_blank");
+      certWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Certificado - Campeão da Segurança</title>
+          <style>
+            body{
+              margin:0;
+              font-family:Arial, Helvetica, sans-serif;
+              background:#f2f6fb;
+            }
+            .page{
+              width:1123px;
+              min-height:794px;
+              margin:20px auto;
+              background:#fff;
+              position:relative;
+              overflow:hidden;
+              border:18px solid #0b2e59;
+              box-shadow:0 12px 32px rgba(0,0,0,.15);
+            }
+            .top-band{
+              background:linear-gradient(135deg,#0b2e59,#123f75);
+              color:#fff;
+              padding:26px 40px;
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+            }
+            .top-band img.logo{
+              max-width:190px;
+            }
+            .content{
+              padding:38px 56px 24px;
+              text-align:center;
+            }
+            .title{
+              font-size:48px;
+              color:#0b2e59;
+              font-weight:900;
+              margin-bottom:8px;
+            }
+            .subtitle{
+              font-size:22px;
+              color:#2d567d;
+              margin-bottom:24px;
+            }
+            .text{
+              font-size:22px;
+              line-height:1.7;
+              color:#26445f;
+              margin:10px auto;
+              max-width:860px;
+            }
+            .name{
+              margin:26px auto 12px;
+              font-size:42px;
+              color:#17a34a;
+              font-weight:900;
+              border-bottom:3px solid #dce8f2;
+              display:inline-block;
+              padding:0 20px 12px;
+            }
+            .score{
+              margin-top:14px;
+              font-size:28px;
+              color:#0b2e59;
+              font-weight:bold;
+            }
+            .date{
+              margin-top:12px;
+              font-size:20px;
+              color:#4a6884;
+            }
+            .mascots-wrap{
+              margin-top:28px;
+            }
+            .mascots-wrap img{
+              max-width:340px;
+            }
+            .bottom{
+              display:flex;
+              justify-content:space-between;
+              align-items:flex-end;
+              padding:20px 56px 42px;
+            }
+            .signature{
+              text-align:center;
+              width:340px;
+            }
+            .signature .line{
+              border-top:2px solid #163d67;
+              margin-bottom:10px;
+            }
+            .signature strong{
+              color:#0b2e59;
+              font-size:22px;
+            }
+            .signature span{
+              display:block;
+              margin-top:4px;
+              color:#47637c;
+            }
+            .seal{
+              background:#eaf7ee;
+              color:#0f8b3b;
+              border:2px solid #17a34a;
+              border-radius:999px;
+              padding:12px 18px;
+              font-weight:900;
+              font-size:18px;
+            }
+            .footer-note{
+              position:absolute;
+              bottom:12px;
+              width:100%;
+              text-align:center;
+              color:#5a7188;
+              font-size:14px;
+            }
+            @media print{
+              body{background:#fff}
+              .page{
+                margin:0;
+                box-shadow:none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="top-band">
+              <div>
+                <div style="font-size:16px;opacity:.9;">Programa Gamificado de SST</div>
+                <div style="font-size:28px;font-weight:900;">Campeão da Segurança</div>
+              </div>
+              <img src="logo-renaux.png" class="logo" alt="Logo Renaux">
+            </div>
+
+            <div class="content">
+              <div class="title">CERTIFICADO</div>
+              <div class="subtitle">Treinamento Gamificado de Segurança do Trabalho</div>
+
+              <div class="text">
+                Certificamos que
+              </div>
+
+              <div class="name">${state.playerName}</div>
+
+              <div class="text">
+                concluiu com êxito o treinamento gamificado <strong>Campeão da Segurança</strong>,
+                com foco em <strong>percepção de risco, comportamento seguro, uso de EPI,
+                operação com empilhadeira e segurança em prensa</strong>.
+              </div>
+
+              <div class="score">Pontuação obtida: ${state.score} pontos | Acertos: ${state.hits}</div>
+              <div class="date">Data de conclusão: ${today}</div>
+
+              <div class="mascots-wrap">
+                <img src="mascotes-campeao.png" alt="Mascotes da Segurança">
+              </div>
+            </div>
+
+            <div class="bottom">
+              <div class="signature">
+                <div class="line"></div>
+                <strong>SESMT</strong>
+                <span>Segurança e Saúde no Trabalho</span>
+              </div>
+
+              <div class="seal">Treinamento Concluído</div>
+            </div>
+
+            <div class="footer-note">
+              Documento gerado automaticamente pela Plataforma Gamificada de SST.
+            </div>
+          </div>
+
+          <script>
+            window.onload = function(){
+              setTimeout(function(){ window.print(); }, 400);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      certWindow.document.close();
+    }
+
+    init();
+  </script>
+</body>
+</html>
