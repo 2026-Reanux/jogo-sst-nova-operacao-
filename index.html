@@ -24,6 +24,7 @@
     }
 
     *{box-sizing:border-box}
+
     html,body{
       margin:0;
       padding:0;
@@ -130,21 +131,26 @@
       border-radius:24px;
       padding:18px;
       min-height:260px;
+      overflow:visible;
     }
 
     .logo{
       max-width:180px;
       width:100%;
       object-fit:contain;
+      display:block;
+      margin:auto;
       filter:drop-shadow(0 6px 14px rgba(0,0,0,.18));
     }
 
     .mascots{
-      max-width:300px;
+      max-width:220px;
       width:100%;
+      height:auto;
       object-fit:contain;
+      display:block;
+      margin:auto;
       animation:floaty 3.4s ease-in-out infinite;
-      filter:drop-shadow(0 12px 24px rgba(0,0,0,.20));
     }
 
     .topbar{
@@ -216,15 +222,18 @@
     }
 
     .btn-primary:hover{transform:translateY(-2px)}
+
     .btn-secondary{
       background:var(--azul);
       color:#fff;
     }
+
     .btn-light{
       background:#edf4fb;
       color:var(--azul);
       border:1px solid #d9e6f2;
     }
+
     .btn-danger{
       background:var(--vermelho);
       color:#fff;
@@ -275,10 +284,12 @@
     }
 
     .mascot-talk img{
-      width:100%;
-      max-width:100px;
-      animation:floaty 3.2s ease-in-out infinite;
+      width:80px;
+      height:auto;
       object-fit:contain;
+      display:block;
+      margin:auto;
+      animation:floaty 3.2s ease-in-out infinite;
     }
 
     .speech{
@@ -611,7 +622,9 @@
 
     .module-banner img{
       width:72px;
+      height:auto;
       object-fit:contain;
+      display:block;
       animation:floaty 3s ease-in-out infinite;
     }
 
@@ -690,9 +703,9 @@
           />
 
           <img
-            src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
-            alt="Mascotes da Segurança"
+            src="mascotes-campeao.png"
             class="mascots"
+            alt="Mascotes da Segurança"
             onerror="this.style.display='none';"
           />
         </div>
@@ -737,12 +750,12 @@
 
     <section class="mascot-talk" id="mascotTalkBox">
       <img
-        src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
+        src="mascotes-campeao.png"
         alt="Mascotes"
         onerror="this.style.display='none';"
       />
       <div class="speech" id="mascotSpeech">
-        Renauxito orienta: identifique seu nome, escolha um módulo e avance em todos os desafios para se tornar um Campeão da Segurança.
+        Renauxito orienta: informe seu nome e complete todos os módulos para gerar seu certificado institucional.
       </div>
     </section>
 
@@ -787,7 +800,7 @@
             <span class="pill">Postura</span>
           </div>
           <p>
-            Fortaleça a cultura de segurança com decisões ligadas a percepção de risco,
+            Fortaleça a cultura de segurança com decisões ligadas à percepção de risco,
             postura correta, calor, ruído e atitudes preventivas no dia a dia.
           </p>
           <button class="btn-primary" onclick="startModule('comportamento')">Iniciar módulo</button>
@@ -811,7 +824,7 @@
 
       <div class="module-banner">
         <img
-          src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
+          src="mascotes-campeao.png"
           alt="Mascotes"
           onerror="this.style.display='none';"
         />
@@ -1141,10 +1154,12 @@
 
     function savePlayerName(){
       const value = playerNameInput.value.trim();
+
       if(!value){
         alert("Digite o nome do colaborador para continuar.");
         return;
       }
+
       state.playerName = value;
       playerStatus.textContent = "Colaborador identificado com sucesso.";
       speak("Kadu avisa: identificação confirmada. Agora escolha um módulo e comece sua jornada segura.");
@@ -1211,7 +1226,7 @@
         optionsBox.appendChild(btn);
       });
 
-      const progressPercent = ((state.currentScenarioIndex) / module.scenarios.length) * 100;
+      const progressPercent = (state.currentScenarioIndex / module.scenarios.length) * 100;
       progressBar.style.width = `${progressPercent}%`;
       progressLabel.textContent = `Situação ${state.currentScenarioIndex + 1} de ${module.scenarios.length}`;
     }
@@ -1502,7 +1517,10 @@
               margin-top:28px;
             }
             .mascots-wrap img{
-              max-width:340px;
+              max-width:260px;
+              width:100%;
+              height:auto;
+              object-fit:contain;
             }
             .bottom{
               display:flex;
@@ -1583,7 +1601,7 @@
               <div class="date">Data de conclusão: ${today}</div>
 
               <div class="mascots-wrap">
-                <img src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png" alt="Mascotes da Segurança">
+                <img src="mascotes-campeao.png" alt="Mascotes da Segurança">
               </div>
             </div>
 
