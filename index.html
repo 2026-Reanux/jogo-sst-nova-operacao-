@@ -271,36 +271,38 @@
     }
 
     .mascot-talk{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns:110px 1fr;
-      gap:14px;
-      align-items:center;
-      background:linear-gradient(135deg,#f4fbf7,#edf8ff);
-      border:1px solid #dcecf1;
-      border-radius:22px;
-      padding:14px;
-      box-shadow:var(--sombra);
-    }
+  margin-top:18px;
+  display:flex;
+  gap:14px;
+  align-items:center;
+  background:linear-gradient(135deg,#f4fbf7,#edf8ff);
+  border:1px solid #dcecf1;
+  border-radius:22px;
+  padding:14px;
+  box-shadow:var(--sombra);
+  min-height:110px;
+}
 
-    .mascot-talk img{
-      width:80px;
-      height:auto;
-      object-fit:contain;
-      display:block;
-      margin:auto;
-      animation:floaty 3.2s ease-in-out infinite;
-    }
+.mascot-talk img{
+  width:80px;
+  min-width:80px;
+  height:auto;
+  object-fit:contain;
+  display:block;
+  margin:auto 0;
+  animation:floaty 3.2s ease-in-out infinite;
+}
 
-    .speech{
-      background:#fff;
-      border-radius:18px;
-      padding:14px 16px;
-      border-left:6px solid var(--verde);
-      color:var(--texto);
-      box-shadow:0 8px 18px rgba(18,63,117,.08);
-      line-height:1.5;
-    }
+.speech{
+  flex:1;
+  background:#fff;
+  border-radius:18px;
+  padding:14px 16px;
+  border-left:6px solid var(--verde);
+  color:var(--texto);
+  box-shadow:0 8px 18px rgba(18,63,117,.08);
+  line-height:1.5;
+}
 
     .modules{
       margin-top:18px;
@@ -695,19 +697,16 @@
         </div>
 
         <div class="brand-box">
-          <img
-            src="logo-renaux.png"
-            alt="Logo Renaux"
-            class="logo"
-            onerror="this.style.display='none';"
-          />
+        <img
+  src="https://2026-reanux.github.io/jogo-sst-nova-operacao-/mascotes-campeao.png"
+  class="mascots"
+  alt="Mascotes da Segurança"
+/>
 
-          <img
-            src="mascotes-campeao.png"
-            class="mascots"
-            alt="Mascotes da Segurança"
-            onerror="this.style.display='none';"
-          />
+   <img
+  src="https://2026-reanux.github.io/jogo-sst-nova-operacao-/mascotes-campeao.png"
+  alt="Mascotes"
+/>
         </div>
       </div>
     </section>
@@ -749,11 +748,10 @@
     </section>
 
     <section class="mascot-talk" id="mascotTalkBox">
-      <img
-        src="mascotes-campeao.png"
-        alt="Mascotes"
-        onerror="this.style.display='none';"
-      />
+    <img
+  src="https://2026-reanux.github.io/jogo-sst-nova-operacao-/mascotes-campeao.png"
+  alt="Mascotes"
+/>
       <div class="speech" id="mascotSpeech">
         Renauxito orienta: informe seu nome e complete todos os módulos para gerar seu certificado institucional.
       </div>
@@ -1601,7 +1599,7 @@
               <div class="date">Data de conclusão: ${today}</div>
 
               <div class="mascots-wrap">
-                <img src="mascotes-campeao.png" alt="Mascotes da Segurança">
+            <img src="https://2026-reanux.github.io/jogo-sst-nova-operacao-/mascotes-campeao.png" alt="Mascotes da Segurança">
               </div>
             </div>
 
