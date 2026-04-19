@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Campeão da Segurança | Plataforma Gamificada SST</title>
 
-  <!-- SheetJS para exportação do ranking -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
   <style>
@@ -34,9 +33,7 @@
       min-height:100%;
     }
 
-    body{
-      overflow-x:hidden;
-    }
+    body{overflow-x:hidden}
 
     .app{
       max-width:1320px;
@@ -44,9 +41,7 @@
       padding:20px;
     }
 
-    .fade-in{
-      animation:fadeIn .7s ease;
-    }
+    .fade-in{animation:fadeIn .7s ease}
 
     @keyframes fadeIn{
       from{opacity:0; transform:translateY(18px)}
@@ -74,13 +69,8 @@
       100%{transform:translateX(0)}
     }
 
-    .zoom-correct{
-      animation:pulseSoft .35s ease;
-    }
-
-    .shake-error{
-      animation:shake .35s ease;
-    }
+    .zoom-correct{animation:pulseSoft .35s ease}
+    .shake-error{animation:shake .35s ease}
 
     .hero{
       background:linear-gradient(135deg,var(--azul),var(--azul-2));
@@ -268,6 +258,7 @@
       font-size:28px;
       color:var(--azul);
       font-weight:800;
+      word-break:break-word;
     }
 
     .mascot-talk{
@@ -287,6 +278,7 @@
       width:100%;
       max-width:100px;
       animation:floaty 3.2s ease-in-out infinite;
+      object-fit:contain;
     }
 
     .speech{
@@ -596,7 +588,7 @@
       padding:8px 14px;
       border-radius:999px;
       background:#e8f5ec;
-      color:var(--verde-2);
+      color:#0f8b3b;
       font-weight:800;
       margin-bottom:12px;
     }
@@ -604,10 +596,6 @@
     .small{
       font-size:13px;
       color:#5d7186;
-    }
-
-    .hidden{
-      display:none !important;
     }
 
     .module-banner{
@@ -623,6 +611,7 @@
 
     .module-banner img{
       width:72px;
+      object-fit:contain;
       animation:floaty 3s ease-in-out infinite;
     }
 
@@ -693,8 +682,19 @@
         </div>
 
         <div class="brand-box">
-          <img src="logo-renaux.png" alt="Logo Renaux" class="logo" />
-          <img src="mascotes-campeao.png" alt="Mascotes da Segurança" class="mascots" />
+          <img
+            src="logo-renaux.png"
+            alt="Logo Renaux"
+            class="logo"
+            onerror="this.style.display='none';"
+          />
+
+          <img
+            src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
+            alt="Mascotes da Segurança"
+            class="mascots"
+            onerror="this.style.display='none';"
+          />
         </div>
       </div>
     </section>
@@ -736,7 +736,11 @@
     </section>
 
     <section class="mascot-talk" id="mascotTalkBox">
-      <img src="mascotes-campeao.png" alt="Mascotes" />
+      <img
+        src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
+        alt="Mascotes"
+        onerror="this.style.display='none';"
+      />
       <div class="speech" id="mascotSpeech">
         Renauxito orienta: identifique seu nome, escolha um módulo e avance em todos os desafios para se tornar um Campeão da Segurança.
       </div>
@@ -806,7 +810,11 @@
       </div>
 
       <div class="module-banner">
-        <img src="mascotes-campeao.png" alt="Mascotes" />
+        <img
+          src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png"
+          alt="Mascotes"
+          onerror="this.style.display='none';"
+        />
         <div>
           <strong id="moduleBannerTitle">Módulo</strong><br>
           <span class="small" id="moduleBannerText">Prepare-se para analisar o risco e escolher a conduta mais segura.</span>
@@ -865,9 +873,6 @@
   </div>
 
   <script>
-    // =========================
-    // DADOS DOS MÓDULOS
-    // =========================
     const modules = {
       empilhadeira: {
         title: "Simulação de Risco em Empilhadeira",
@@ -882,10 +887,10 @@
             tag: "Risco de Atropelamento",
             title: "Pedestre atravessando a rota",
             description: "Durante a movimentação interna, um colaborador decide cortar caminho e atravessar próximo à empilhadeira em movimento. O operador percebe a presença dele somente no último instante.",
-            risk: "Risco SST: atropelamento em vias de circulação interna. A prevenção depende de atenção constante, segregação de fluxo e uso das faixas destinadas à locomoção de pedestres.",
+            risk: "Risco SST: atropelamento em vias de circulação interna. A prevenção depende de atenção constante, redução de velocidade, segregação de fluxo e uso das faixas destinadas à locomoção de pedestres.",
             question: "Qual é a melhor conduta imediata e preventiva?",
             options: [
-              { text: "Seguir normalmente, pois o pedestre deve sair da frente.", correct: false, feedback: "Conduta incorreta. A prioridade é eliminar o risco imediato e reforçar segregação segura entre veículo e pedestre." },
+              { text: "Seguir normalmente, pois o pedestre deve sair da frente.", correct: false, feedback: "Conduta incorreta. A prioridade é eliminar o risco imediato e reforçar a segregação segura entre veículo e pedestre." },
               { text: "Reduzir, parar se necessário, garantir distância segura e reforçar o uso das faixas de pedestres.", correct: true, feedback: "Correto. Em áreas com circulação mista, a prevenção do atropelamento exige atenção, redução de velocidade e respeito às rotas seguras." },
               { text: "Buzinar e manter a operação sem alterar a velocidade.", correct: false, feedback: "Incorreto. A buzina pode ser apoio, mas não substitui parada segura e controle efetivo da situação." }
             ]
@@ -1086,9 +1091,6 @@
       }
     };
 
-    // =========================
-    // ESTADO GLOBAL
-    // =========================
     const state = {
       playerName: "",
       score: 0,
@@ -1100,9 +1102,6 @@
       rankingKey: "campeaoSegurancaRankingV2"
     };
 
-    // =========================
-    // ELEMENTOS
-    // =========================
     const playerNameInput = document.getElementById("playerName");
     const savePlayerBtn = document.getElementById("savePlayerBtn");
     const playerStatus = document.getElementById("playerStatus");
@@ -1129,9 +1128,6 @@
     const finalScore = document.getElementById("finalScore");
     const rankingContainer = document.getElementById("rankingContainer");
 
-    // =========================
-    // INICIALIZAÇÃO
-    // =========================
     savePlayerBtn.addEventListener("click", savePlayerName);
     playerNameInput.addEventListener("keydown", function(e){
       if(e.key === "Enter") savePlayerName();
@@ -1171,9 +1167,6 @@
       return lines[Math.floor(Math.random() * lines.length)];
     }
 
-    // =========================
-    // FLUXO DO JOGO
-    // =========================
     function startModule(moduleKey){
       if(!state.playerName){
         alert("Antes de iniciar, digite o nome do colaborador.");
@@ -1242,7 +1235,6 @@
         feedbackBox.className = "feedback fail";
         feedbackBox.textContent = "❌ Resposta incorreta. " + feedback;
 
-        // destaca a correta
         allOptions.forEach((opt, idx) => {
           if(opt.correct && optionButtons[idx]){
             optionButtons[idx].classList.add("correct");
@@ -1312,9 +1304,6 @@
       speak("Jornada reiniciada. Vamos treinar novamente com foco total em segurança.");
     }
 
-    // =========================
-    // RANKING
-    // =========================
     function getRanking(){
       return JSON.parse(localStorage.getItem(state.rankingKey) || "[]");
     }
@@ -1401,9 +1390,6 @@
       alert("Ranking apagado com sucesso.");
     }
 
-    // =========================
-    // EXPORTAÇÃO EXCEL
-    // =========================
     function exportRankingExcel(){
       const ranking = getRanking();
 
@@ -1423,9 +1409,6 @@
       XLSX.writeFile(workbook, "ranking-campeao-da-seguranca.xlsx");
     }
 
-    // =========================
-    // CERTIFICADO
-    // =========================
     function generateCertificate(){
       if(!state.playerName){
         alert("Digite o nome do colaborador.");
@@ -1600,7 +1583,7 @@
               <div class="date">Data de conclusão: ${today}</div>
 
               <div class="mascots-wrap">
-                <img src="mascotes-campeao.png" alt="Mascotes da Segurança">
+                <img src="https://raw.githubusercontent.com/2026-Reanux/jogo-sst-nova-operacao-/main/mascotes-campeao.png" alt="Mascotes da Segurança">
               </div>
             </div>
 
