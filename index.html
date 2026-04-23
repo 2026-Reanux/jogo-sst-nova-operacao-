@@ -1,160 +1,1833 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Campeão da Segurança</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Campeão da Segurança | Mobile App com Fases</title>
 
-<style>
-body{
-font-family:Arial;
-background:#eef5fb;
-margin:0;
-}
+  <meta name="theme-color" content="#0b2e59" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 
-h1{
-color:#0b2e59;
-}
+  <style>
+    :root{
+      --azul:#0b2e59;
+      --azul-2:#123f75;
+      --verde:#17a34a;
+      --verde-2:#0f8b3b;
+      --verde-claro:#ebfff2;
+      --branco:#ffffff;
+      --cinza:#eef3f8;
+      --cinza-2:#d9e3ef;
+      --texto:#18324a;
+      --texto-2:#51697f;
+      --vermelho:#d93025;
+      --amarelo:#f4b400;
+      --ouro:#d4a017;
+      --prata:#8f9aa7;
+      --bronze:#a7653a;
+      --sombra:0 12px 30px rgba(11,46,89,.16);
+      --radius:22px;
+      --safeTop: env(safe-area-inset-top, 0px);
+      --safeBottom: env(safe-area-inset-bottom, 0px);
+    }
 
-input,button{
-padding:10px;
-margin-top:10px;
-width:100%;
-border-radius:10px;
-border:1px solid #ccc;
-}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{
+      margin:0;
+      padding:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,#eaf3fb 0%, #f8fbff 100%);
+      color:var(--texto);
+      min-height:100%;
+    }
 
-button{
-background:#0b2e59;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
+    body{
+      overflow-x:hidden;
+      padding-bottom:calc(18px + var(--safeBottom));
+    }
 
-.card{
-background:white;
-padding:20px;
-border-radius:15px;
-margin-top:20px;
-box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
+    button,input{
+      font-family:inherit;
+    }
 
-.hidden{
-display:none;
-}
-</style>
+    .app{
+      width:100%;
+      max-width:980px;
+      margin:0 auto;
+      padding:calc(14px + var(--safeTop)) 14px 18px;
+    }
+
+    .fade-in{animation:fadeIn .5s ease}
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(14px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    @keyframes floaty{
+      0%{transform:translateY(0)}
+      50%{transform:translateY(-8px)}
+      100%{transform:translateY(0)}
+    }
+
+    @keyframes pulseSoft{
+      0%{transform:scale(1)}
+      50%{transform:scale(1.03)}
+      100%{transform:scale(1)}
+    }
+
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      20%{transform:translateX(-6px)}
+      40%{transform:translateX(6px)}
+      60%{transform:translateX(-5px)}
+      80%{transform:translateX(5px)}
+      100%{transform:translateX(0)}
+    }
+
+    .zoom-correct{animation:pulseSoft .35s ease}
+    .shake-error{animation:shake .35s ease}
+
+    .screen{
+      display:none;
+    }
+    .screen.active{
+      display:block;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,var(--azul),var(--azul-2));
+      border-radius:28px;
+      color:#fff;
+      padding:18px;
+      box-shadow:var(--sombra);
+      overflow:hidden;
+    }
+
+    .hero-top{
+      display:flex;
+      gap:14px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .hero-left{
+      flex:1;
+      min-width:220px;
+    }
+
+    .hero h1{
+      margin:0 0 8px 0;
+      font-size:clamp(26px,6vw,38px);
+      line-height:1.05;
+    }
+
+    .hero p{
+      margin:8px 0;
+      line-height:1.5;
+      color:rgba(255,255,255,.95);
+      font-size:15px;
+    }
+
+    .hero-assets{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      flex-wrap:wrap;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:22px;
+      padding:12px;
+    }
+
+    .logo{
+      max-width:130px;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+      display:block;
+    }
+
+    .mascots{
+      max-width:170px;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+      display:block;
+      animation:floaty 3.4s ease-in-out infinite;
+    }
+
+    .badges{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .badge{
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.13);
+      border:1px solid rgba(255,255,255,.18);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .card{
+      background:#fff;
+      border-radius:var(--radius);
+      box-shadow:var(--sombra);
+      padding:16px;
+      border:1px solid #e6edf5;
+    }
+
+    .card + .card{
+      margin-top:14px;
+    }
+
+    .section-title{
+      margin:0 0 8px 0;
+      color:var(--azul);
+      font-size:22px;
+    }
+
+    .small{
+      font-size:13px;
+      color:var(--texto-2);
+      line-height:1.5;
+    }
+
+    .player-form{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin-top:8px;
+    }
+
+    label{
+      display:block;
+      font-size:14px;
+      margin-bottom:6px;
+      font-weight:700;
+      color:var(--azul);
+    }
+
+    input[type="text"]{
+      width:100%;
+      padding:14px;
+      border:2px solid #d9e4f0;
+      border-radius:16px;
+      font-size:16px;
+      outline:none;
+      color:var(--texto);
+      background:#fff;
+    }
+
+    input[type="text"]:focus{
+      border-color:var(--verde);
+      box-shadow:0 0 0 4px rgba(23,163,74,.12);
+    }
+
+    button{
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      padding:14px 16px;
+      font-size:15px;
+      font-weight:800;
+      transition:.2s;
+      min-height:48px;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,var(--verde),var(--verde-2));
+      color:#fff;
+      box-shadow:0 8px 18px rgba(23,163,74,.24);
+    }
+    .btn-primary:hover{transform:translateY(-1px)}
+
+    .btn-secondary{
+      background:var(--azul);
+      color:#fff;
+    }
+
+    .btn-light{
+      background:#edf4fb;
+      color:var(--azul);
+      border:1px solid #d9e6f2;
+    }
+
+    .btn-danger{
+      background:var(--vermelho);
+      color:#fff;
+    }
+
+    .hud{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .hud-card{
+      background:#fff;
+      border:1px solid #e6edf5;
+      border-radius:18px;
+      box-shadow:var(--sombra);
+      padding:14px;
+    }
+
+    .hud-label{
+      font-size:12px;
+      text-transform:uppercase;
+      color:#5b7087;
+      font-weight:800;
+      margin-bottom:6px;
+      letter-spacing:.4px;
+    }
+
+    .hud-value{
+      font-size:24px;
+      font-weight:900;
+      color:var(--azul);
+      word-break:break-word;
+    }
+
+    .mascot-talk{
+      margin-top:14px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      background:linear-gradient(135deg,#f4fbf7,#edf8ff);
+      border:1px solid #dcecf1;
+      border-radius:22px;
+      padding:12px;
+      box-shadow:var(--sombra);
+      min-height:96px;
+    }
+
+    .mascot-talk img{
+      width:76px;
+      min-width:76px;
+      height:auto;
+      object-fit:contain;
+      display:block;
+      animation:floaty 3.2s ease-in-out infinite;
+    }
+
+    .speech{
+      flex:1;
+      background:#fff;
+      border-radius:18px;
+      padding:12px 14px;
+      border-left:6px solid var(--verde);
+      line-height:1.5;
+      box-shadow:0 8px 18px rgba(18,63,117,.08);
+    }
+
+    .overview-progress{
+      margin-top:14px;
+    }
+
+    .progress-title{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      font-size:13px;
+      font-weight:800;
+      color:var(--azul);
+      margin-bottom:8px;
+    }
+
+    .progress{
+      height:14px;
+      background:#e3edf7;
+      border-radius:999px;
+      overflow:hidden;
+    }
+
+    .progress-bar{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,var(--verde),#45c16e);
+      transition:.35s ease;
+    }
+
+    .phases-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .phase-card{
+      background:#fff;
+      border-radius:22px;
+      border:1px solid #e6edf5;
+      box-shadow:var(--sombra);
+      padding:16px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .phase-card::before{
+      content:"";
+      position:absolute;
+      top:0;left:0;right:0;
+      height:6px;
+      background:linear-gradient(90deg,var(--azul),var(--verde));
+    }
+
+    .phase-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:8px;
+    }
+
+    .phase-badge{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-weight:800;
+      background:#edf4fb;
+      color:var(--azul);
+    }
+
+    .phase-badge.done{
+      background:#e8f5ec;
+      color:var(--verde-2);
+    }
+
+    .phase-badge.locked{
+      background:#f0f3f7;
+      color:#7a8da2;
+    }
+
+    .phase-title{
+      margin:0;
+      font-size:20px;
+      color:var(--azul);
+    }
+
+    .phase-desc{
+      margin:8px 0 12px;
+      color:#4c647d;
+      line-height:1.5;
+      font-size:14px;
+    }
+
+    .phase-tags{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .tag{
+      background:#edf4fb;
+      color:var(--azul);
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .phase-footer{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .phase-status{
+      font-size:13px;
+      color:#5c7287;
+      font-weight:700;
+    }
+
+    .locked-overlay{
+      opacity:.65;
+      pointer-events:none;
+    }
+
+    .game-topbar{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:12px;
+    }
+
+    .game-card{
+      background:#fff;
+      border-radius:24px;
+      box-shadow:var(--sombra);
+      padding:16px;
+      border:1px solid #e6edf5;
+    }
+
+    .phase-header{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:12px;
+      background:#f7fbff;
+      border:1px solid #e1ebf5;
+      border-radius:18px;
+      padding:12px;
+    }
+
+    .phase-header img{
+      width:64px;
+      height:auto;
+      object-fit:contain;
+      display:block;
+      animation:floaty 3s ease-in-out infinite;
+    }
+
+    .scenario-tag{
+      display:inline-block;
+      background:#e8f5ec;
+      color:var(--verde-2);
+      border-radius:999px;
+      padding:8px 12px;
+      font-size:12px;
+      font-weight:800;
+      width:max-content;
+      margin-bottom:10px;
+    }
+
+    .scenario-title{
+      margin:0 0 10px;
+      color:var(--azul);
+      font-size:24px;
+      line-height:1.15;
+    }
+
+    .scenario-desc{
+      background:#f7fbff;
+      border:1px solid #e1ebf5;
+      border-radius:18px;
+      padding:14px;
+      line-height:1.6;
+      color:#355069;
+      font-size:15px;
+    }
+
+    .risk-box{
+      background:#fff7e6;
+      border:1px solid #ffe3a8;
+      border-left:6px solid var(--amarelo);
+      border-radius:18px;
+      padding:14px;
+      line-height:1.5;
+      margin-top:12px;
+      font-size:14px;
+    }
+
+    .question-title{
+      margin:14px 0 10px;
+      font-size:18px;
+      font-weight:900;
+      color:var(--azul);
+    }
+
+    .options{
+      display:grid;
+      gap:10px;
+    }
+
+    .option-btn{
+      text-align:left;
+      background:#fff;
+      border:2px solid #dce8f3;
+      color:var(--texto);
+      border-radius:18px;
+      padding:14px;
+      font-size:15px;
+      font-weight:800;
+      min-height:58px;
+    }
+
+    .option-btn:hover{
+      background:#f5fbff;
+      border-color:#b7d3ea;
+    }
+
+    .option-btn.correct{
+      background:#ebfff2;
+      border-color:var(--verde);
+      color:#0b6a31;
+    }
+
+    .option-btn.error{
+      background:#fff1f0;
+      border-color:var(--vermelho);
+      color:#a32620;
+    }
+
+    .feedback{
+      min-height:58px;
+      border-radius:18px;
+      padding:14px;
+      line-height:1.5;
+      font-weight:800;
+      display:none;
+      margin-top:12px;
+      font-size:14px;
+    }
+
+    .feedback.ok{
+      display:block;
+      background:#ebfff2;
+      color:#0e6d33;
+      border:1px solid #bde8ca;
+    }
+
+    .feedback.fail{
+      display:block;
+      background:#fff1f0;
+      color:#9f221c;
+      border:1px solid #f0c2be;
+    }
+
+    .game-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .completion{
+      background:linear-gradient(135deg,#f2fff6,#eff8ff);
+      border:1px solid #d9ecdf;
+      border-radius:24px;
+      box-shadow:var(--sombra);
+      padding:20px;
+      text-align:center;
+    }
+
+    .completion h2{
+      margin-top:0;
+      color:var(--azul);
+      font-size:28px;
+    }
+
+    .completion-score{
+      font-size:40px;
+      font-weight:900;
+      color:var(--verde-2);
+      margin:12px 0;
+      line-height:1.25;
+    }
+
+    .selo{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:#e8f5ec;
+      color:#0f8b3b;
+      font-weight:900;
+      margin-bottom:12px;
+    }
+
+    .summary-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:16px;
+      text-align:left;
+    }
+
+    .summary-item{
+      background:#fff;
+      border:1px solid #e4edf6;
+      border-radius:18px;
+      padding:14px;
+    }
+
+    .summary-item .k{
+      color:#687d92;
+      font-size:12px;
+      text-transform:uppercase;
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .summary-item .v{
+      color:var(--azul);
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .ranking-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:10px;
+      overflow:hidden;
+      border-radius:14px;
+    }
+
+    .ranking-table th,
+    .ranking-table td{
+      padding:10px;
+      text-align:left;
+      border-bottom:1px solid #e7eef5;
+      font-size:13px;
+      vertical-align:top;
+    }
+
+    .ranking-table th{
+      background:#f5f9fd;
+      color:var(--azul);
+    }
+
+    .top1{
+      background:#fff9e6;
+    }
+
+    .ranking-empty{
+      padding:18px;
+      background:#f7fbff;
+      border-radius:14px;
+      color:#567086;
+      border:1px dashed #c8dae9;
+      margin-top:10px;
+    }
+
+    .footer-actions{
+      margin-top:14px;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .center{
+      text-align:center;
+    }
+
+    @media (min-width: 768px){
+      .app{
+        padding-top:22px;
+      }
+
+      .hero-top{
+        flex-wrap:nowrap;
+      }
+
+      .hud{
+        grid-template-columns:repeat(4,1fr);
+      }
+
+      .phases-grid{
+        grid-template-columns:1fr 1fr;
+      }
+
+      .summary-grid{
+        grid-template-columns:repeat(4,1fr);
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <audio id="soundCorrect" src="https://assets.mixkit.co/sfx/preview/mixkit-correct-answer-tone-2870.mp3"></audio>
+  <audio id="soundError" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3"></audio>
+  <audio id="soundWin" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3"></audio>
 
-<div class="container">
+  <div class="app fade-in">
 
-<h1>🏆 Campeão da Segurança</h1>
+    <!-- HOME -->
+    <section id="homeScreen" class="screen active">
+      <div class="hero">
+        <div class="hero-top">
+          <div class="hero-left">
+            <h1>Campeão da Segurança</h1>
+            <p>Versão mobile com fases para treinar percepção de risco, comportamento seguro, EPI, empilhadeira e prensa.</p>
+            <div class="badges">
+              <span class="badge">Mobile First</span>
+              <span class="badge">Sistema de Fases</span>
+              <span class="badge">Ranking</span>
+              <span class="badge">Certificado</span>
+            </div>
+          </div>
 
-<div class="card">
-<label>Nome do colaborador</label>
-<input id="nome">
-<button onclick="salvarNome()">Iniciar</button>
-</div>
+          <div class="hero-assets">
+            <img src="logo-renaux.png" alt="Logo Renaux" class="logo" onerror="this.style.display='none';" />
+            <img src="mascotes-campeao.png" alt="Mascotes" class="mascots" onerror="this.style.display='none';" />
+          </div>
+        </div>
+      </div>
 
-<div id="jogo" class="card hidden">
-<h3 id="pergunta"></h3>
+      <div class="card" style="margin-top:14px;">
+        <h2 class="section-title">Identificação</h2>
+        <div class="player-form">
+          <div>
+            <label for="playerName">Digite seu nome</label>
+            <input type="text" id="playerName" placeholder="Ex.: Flávia Valença" />
+          </div>
+          <button class="btn-primary" id="savePlayerBtn">Salvar e começar</button>
+        </div>
+        <p class="small" id="playerStatus">Nenhum colaborador identificado.</p>
 
-<button onclick="responder(true)">Resposta correta</button>
-<button onclick="responder(false)">Resposta errada</button>
+        <div class="hud">
+          <div class="hud-card">
+            <div class="hud-label">Colaborador</div>
+            <div class="hud-value" id="hudName">-</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Pontuação</div>
+            <div class="hud-value" id="hudScore">0</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Fases concluídas</div>
+            <div class="hud-value" id="hudPhase">0/5</div>
+          </div>
+          <div class="hud-card">
+            <div class="hud-label">Acertos</div>
+            <div class="hud-value" id="hudHits">0</div>
+          </div>
+        </div>
+      </div>
 
-<p id="resultado"></p>
+      <div class="mascot-talk">
+        <img src="mascotes-campeao.png" alt="Mascotes" onerror="this.style.display='none';" />
+        <div class="speech" id="mascotSpeech">
+          Renauxito orienta: salve seu nome, avance pelas fases e conclua a missão para gerar seu certificado.
+        </div>
+      </div>
 
-<button onclick="finalizar()">Finalizar jogo</button>
-</div>
+      <div class="card">
+        <h2 class="section-title">Mapa de Fases</h2>
+        <p class="small">As fases são liberadas em sequência. Conclua uma para desbloquear a próxima.</p>
 
-<div id="final" class="card hidden">
-<h2>Resultado</h2>
-<p id="pontuacao"></p>
-<button onclick="enviar()">Enviar ranking</button>
-</div>
+        <div class="overview-progress">
+          <div class="progress-title">
+            <span>Progresso geral</span>
+            <span id="overallProgressText">0%</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" id="overallProgressBar"></div>
+          </div>
+        </div>
 
-<div class="card">
-<h3>Área Admin</h3>
-<input id="senha" placeholder="Senha">
-<button onclick="admin()">Entrar</button>
+        <div class="phases-grid" id="phasesGrid"></div>
+      </div>
 
-<div id="ranking"></div>
-</div>
+      <div class="card">
+        <h2 class="section-title">Ranking dos Campeões</h2>
+        <div class="footer-actions">
+          <button class="btn-secondary" onclick="exportRankingExcel()">Exportar ranking em Excel</button>
+          <button class="btn-light" onclick="renderRanking()">Atualizar ranking</button>
+          <button class="btn-danger" onclick="clearRanking()">Limpar ranking</button>
+        </div>
+        <div id="rankingContainer"></div>
+      </div>
+    </section>
 
-</div>
+    <!-- GAME -->
+    <section id="gameScreen" class="screen">
+      <div class="game-topbar">
+        <button class="btn-light" onclick="backToHome()">← Voltar</button>
+        <button class="btn-secondary" id="nextBtn" onclick="nextScenario()" disabled>Próxima</button>
+      </div>
 
-<script>
+      <div class="card">
+        <div class="progress-title">
+          <span id="phaseProgressLabel">Situação 1 de 3</span>
+          <span id="phaseProgressPercent">0%</span>
+        </div>
+        <div class="progress">
+          <div class="progress-bar" id="phaseProgressBar"></div>
+        </div>
+      </div>
 
-let nome="";
-let pontos=0;
-https://script.google.com/macros/s/AKfycbyvYm2PsTUeGDXbWx1wm0RgVhrHE2l4BKCEzAmea1NEaUEeiejXf106Hi3hL7SMXqdB0A/exec
+      <div class="game-card">
+        <div class="phase-header">
+          <img src="mascotes-campeao.png" alt="Mascotes" onerror="this.style.display='none';" />
+          <div>
+            <strong id="phaseHeaderTitle">Fase</strong><br>
+            <span class="small" id="phaseHeaderText">Prepare-se para decidir com segurança.</span>
+          </div>
+        </div>
 
-function salvarNome(){
-nome=document.getElementById("nome").value;
-document.getElementById("jogo").classList.remove("hidden");
-pergunta();
-}
+        <span class="scenario-tag" id="scenarioTag">Fase</span>
+        <h2 class="scenario-title" id="scenarioTitle">Título</h2>
+        <div class="scenario-desc" id="scenarioDescription"></div>
+        <div class="risk-box" id="riskReference"></div>
 
-function pergunta(){
-document.getElementById("pergunta").innerText="Situação de risco detectada. Qual a decisão correta?";
-}
+        <div class="question-title" id="questionTitle">Qual a melhor decisão?</div>
+        <div class="options" id="optionsBox"></div>
+        <div class="feedback" id="feedbackBox"></div>
 
-function responder(certo){
-if(certo){
-pontos+=10;
-document.getElementById("resultado").innerText="✔ Acertou!";
-}else{
-document.getElementById("resultado").innerText="❌ Errou!";
-}
-}
+        <div class="game-actions">
+          <button class="btn-light" onclick="backToHome()">Sair da fase</button>
+        </div>
+      </div>
+    </section>
 
-function finalizar(){
-document.getElementById("jogo").classList.add("hidden");
-document.getElementById("final").classList.remove("hidden");
-document.getElementById("pontuacao").innerText="Pontuação: "+pontos;
-}
+    <!-- COMPLETION -->
+    <section id="completionScreen" class="screen">
+      <div class="completion">
+        <span class="selo">Missão concluída</span>
+        <h2>Parabéns, Campeão da Segurança!</h2>
+        <p class="small center">Você concluiu todas as fases do aplicativo de treinamento gamificado.</p>
+        <div class="completion-score" id="finalScore">0 pontos</div>
 
-async function enviar(){
-await fetch(API_URL,{
-method:"POST",
-body:JSON.stringify({
-action:"saveScore",
-nome:nome,
-pontuacao:pontos,
-acertos:pontos/10
-})
-});
-alert("Enviado!");
-}
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="k">Colaborador</div>
+            <div class="v" id="sumName">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="k">Nível</div>
+            <div class="v" id="sumLevel">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="k">Medalha</div>
+            <div class="v" id="sumMedal">-</div>
+          </div>
+          <div class="summary-item">
+            <div class="k">Acertos</div>
+            <div class="v" id="sumHits">0</div>
+          </div>
+        </div>
 
-async function admin(){
-let senha=document.getElementById("senha").value;
+        <div class="footer-actions" style="justify-content:center;">
+          <button class="btn-primary" onclick="saveToRanking()">Salvar no ranking</button>
+          <button class="btn-secondary" onclick="generateCertificate()">Gerar certificado</button>
+          <button class="btn-light" onclick="resetJourney()">Jogar novamente</button>
+          <button class="btn-light" onclick="goHome()">Voltar ao início</button>
+        </div>
+      </div>
+    </section>
+  </div>
 
-let res=await fetch(API_URL+"?action=adminRanking&password="+senha);
-let data=await res.json();
+  <script>
+    const phases = [
+      {
+        id: "fase1",
+        title: "Fase 1 - Percepção de Risco",
+        shortTitle: "Percepção de Risco",
+        desc: "Aprenda a reconhecer desvios antes que virem acidentes.",
+        tags: ["Desvios", "Atenção", "Prevenção"],
+        banner: "Renauxito orienta: segurança começa quando o risco é percebido antes da ocorrência.",
+        mascotLines: [
+          "Renauxito orienta: desvio pequeno também precisa de atenção.",
+          "Renauxito alerta: rotina nunca pode reduzir a percepção de risco.",
+          "Renauxito reforça: segurança se constrói antes do acidente."
+        ],
+        scenarios: [
+          {
+            tag: "Percepção",
+            title: "Atalho inseguro na operação",
+            description: "Um colaborador resolve cortar caminho por uma área operacional para ganhar tempo, ignorando a rota segura definida.",
+            risk: "Risco SST: aumento de exposição por circulação fora da rota segura e normalização do desvio.",
+            question: "Qual é a melhor atitude?",
+            options: [
+              { text: "Orientar e reforçar a rota segura, mesmo que pareça um desvio pequeno.", correct: true, feedback: "Correto. Pequenos desvios também precisam ser tratados para evitar eventos maiores." },
+              { text: "Permitir, porque ele já conhece bem a área.", correct: false, feedback: "Incorreto. Experiência não elimina risco." },
+              { text: "Ignorar, pois ninguém se machucou.", correct: false, feedback: "Incorreto. Prevenção acontece antes do acidente." }
+            ]
+          },
+          {
+            tag: "Desvio",
+            title: "Uso de celular em área operacional",
+            description: "Você percebe um colega olhando o celular enquanto caminha próximo a veículos e movimentação de materiais.",
+            risk: "Risco SST: distração em área operacional, com perda de percepção situacional.",
+            question: "Qual atitude fortalece a cultura de segurança?",
+            options: [
+              { text: "Orientar imediatamente e reforçar atenção total em área operacional.", correct: true, feedback: "Correto. Distração em ambiente operacional aumenta muito a exposição ao risco." },
+              { text: "Esperar a liderança perceber.", correct: false, feedback: "Incorreto. Segurança é responsabilidade compartilhada." },
+              { text: "Não intervir para evitar conflito.", correct: false, feedback: "Incorreto. O silêncio mantém o desvio." }
+            ]
+          },
+          {
+            tag: "Cultura",
+            title: "Quase acidente não reportado",
+            description: "Um quase acidente ocorreu, mas parte da equipe acha desnecessário registrar porque não houve lesão.",
+            risk: "Risco SST: perda de oportunidade preventiva e repetição de condição insegura.",
+            question: "Qual é a decisão correta?",
+            options: [
+              { text: "Registrar o quase acidente e tratar a causa antes que vire evento real.", correct: true, feedback: "Correto. Quase acidentes são oportunidades valiosas de prevenção." },
+              { text: "Deixar passar, já que não houve dano.", correct: false, feedback: "Incorreto. A ausência de dano não elimina a causa." },
+              { text: "Só conversar informalmente sem registro.", correct: false, feedback: "Incorreto. Sem registro e ação, o risco permanece." }
+            ]
+          }
+        ]
+      },
 
-if(!data.ok){
-alert("Senha errada");
-return;
-}
+      {
+        id: "fase2",
+        title: "Fase 2 - Comportamento Seguro",
+        shortTitle: "Comportamento Seguro",
+        desc: "Escolha as atitudes que fortalecem a cultura de segurança no dia a dia.",
+        tags: ["EPI", "Disciplina", "Cultura"],
+        banner: "Kadu avisa: comportamento seguro é decisão diária, não depende apenas de fiscalização.",
+        mascotLines: [
+          "Kadu avisa: fazer certo sempre é mais forte que fazer certo só quando observam.",
+          "Kadu reforça: cultura de segurança é comportamento consistente.",
+          "Kadu orienta: desvio tolerado hoje pode ser acidente amanhã."
+        ],
+        scenarios: [
+          {
+            tag: "EPI",
+            title: "Entrada em área ruidosa sem proteção",
+            description: "Um colaborador entra na área ruidosa sem o protetor auricular adequado porque ficará pouco tempo no local.",
+            risk: "Risco SST: exposição indevida ao ruído por falha de comportamento seguro.",
+            question: "Qual conduta deve prevalecer?",
+            options: [
+              { text: "Interromper a exposição e orientar o uso correto do EPI.", correct: true, feedback: "Correto. Tempo curto não justifica exposição sem proteção." },
+              { text: "Liberar, pois será rápido.", correct: false, feedback: "Incorreto. Exposição indevida continua sendo exposição." },
+              { text: "Deixar entrar apenas desta vez.", correct: false, feedback: "Incorreto. Exceções fragilizam a cultura de segurança." }
+            ]
+          },
+          {
+            tag: "Ergonomia",
+            title: "Postura inadequada repetitiva",
+            description: "Durante a rotina, o trabalhador permanece em postura desconfortável sem ajuste do posto e sem pausas.",
+            risk: "Risco SST: sobrecarga ergonômica e desconforto progressivo.",
+            question: "Qual medida ajuda a prevenir esse risco?",
+            options: [
+              { text: "Ajustar o posto, orientar ergonomia e realizar pausas quando aplicável.", correct: true, feedback: "Correto. Adaptação e orientação reduzem a exposição ergonômica." },
+              { text: "Acelerar o trabalho para terminar logo.", correct: false, feedback: "Incorreto. Pressa não reduz o risco." },
+              { text: "Ignorar porque não é um acidente imediato.", correct: false, feedback: "Incorreto. Risco ergonômico também precisa de controle." }
+            ]
+          },
+          {
+            tag: "Disciplina",
+            title: "Atalho comportamental",
+            description: "Um colaborador decide pular uma orientação rápida antes da atividade porque já fez aquela tarefa várias vezes.",
+            risk: "Risco SST: excesso de confiança e enfraquecimento da disciplina operacional.",
+            question: "Qual é a postura correta?",
+            options: [
+              { text: "Manter a orientação e a rotina segura mesmo em tarefas conhecidas.", correct: true, feedback: "Correto. Rotina conhecida não elimina a necessidade de disciplina." },
+              { text: "Liberar, pois a experiência dele compensa.", correct: false, feedback: "Incorreto. Experiência não substitui rotina segura." },
+              { text: "Permitir quando a produção estiver apertada.", correct: false, feedback: "Incorreto. Produção não justifica atalho inseguro." }
+            ]
+          }
+        ]
+      },
 
-let html="<h4>Ranking</h4>";
+      {
+        id: "fase3",
+        title: "Fase 3 - Empilhadeira",
+        shortTitle: "Empilhadeira",
+        desc: "Decida com segurança em cenários de circulação interna e interação com pedestres.",
+        tags: ["Atropelamento", "Rotas", "Operação"],
+        banner: "Latito recomenda: empilhadeira e pedestre nunca disputam espaço.",
+        mascotLines: [
+          "Latito recomenda: via de pedestre é para pedestre.",
+          "Latito alerta: cruzamento interno pede atenção máxima.",
+          "Latito reforça: visibilidade e controle são parte da operação segura."
+        ],
+        scenarios: [
+          {
+            tag: "Atropelamento",
+            title: "Pedestre atravessando a rota",
+            description: "Durante a movimentação interna, um colaborador atravessa próximo à empilhadeira em movimento.",
+            risk: "Risco SST: atropelamento em rota de circulação mista.",
+            question: "Qual conduta é mais segura?",
+            options: [
+              { text: "Reduzir, parar se necessário e reforçar o uso das faixas de pedestres.", correct: true, feedback: "Correto. Controle do equipamento e segregação de fluxo são essenciais." },
+              { text: "Buzinar e seguir normalmente.", correct: false, feedback: "Incorreto. A buzina não substitui o controle efetivo do risco." },
+              { text: "Seguir porque o pedestre deve sair da frente.", correct: false, feedback: "Incorreto. A prioridade é eliminar o risco imediato." }
+            ]
+          },
+          {
+            tag: "Visibilidade",
+            title: "Carga com visibilidade reduzida",
+            description: "A carga paletizada reduz a visão frontal do operador em um trajeto com cruzamentos.",
+            risk: "Risco SST: colisão e atropelamento por perda de visibilidade.",
+            question: "Qual é a decisão correta?",
+            options: [
+              { text: "Ajustar a operação para garantir visibilidade segura e atenção reforçada.", correct: true, feedback: "Correto. A forma de deslocamento deve preservar controle e segurança." },
+              { text: "Manter a mesma forma de operação para não atrasar.", correct: false, feedback: "Incorreto. Pressa aumenta o risco." },
+              { text: "Pedir que alguém caminhe na frente o tempo todo.", correct: false, feedback: "Incorreto. Não se deve expor outra pessoa desnecessariamente." }
+            ]
+          },
+          {
+            tag: "Rotas Seguras",
+            title: "Circulação fora da faixa",
+            description: "Um colaborador sai da faixa de pedestres por estar com pressa em área com fluxo misto.",
+            risk: "Risco SST: atropelamento por circulação fora da rota segura.",
+            question: "Qual orientação deve prevalecer?",
+            options: [
+              { text: "Usar as faixas destinadas à locomoção e manter atenção constante.", correct: true, feedback: "Correto. Rotas segregadas são medida básica de prevenção." },
+              { text: "Ignorar a rota quando não houver empilhadeira visível.", correct: false, feedback: "Incorreto. A disciplina precisa ser contínua." },
+              { text: "Permitir o atalho em caso de pressa.", correct: false, feedback: "Incorreto. Pressa aumenta a exposição." }
+            ]
+          }
+        ]
+      },
 
-data.ranking.forEach((r,i)=>{
-html+=`${i+1} - ${r.nome} (${r.pontuacao})<br>`;
-});
+      {
+        id: "fase4",
+        title: "Fase 4 - Prensa",
+        shortTitle: "Prensa",
+        desc: "Reconheça os controles essenciais para evitar corte, prensamento e falhas críticas.",
+        tags: ["Proteções", "Parada", "Inspeção"],
+        banner: "Kadu avisa: máquina só opera com proteção íntegra e procedimento seguro.",
+        mascotLines: [
+          "Kadu avisa: segurança de máquina nunca pode ser burlada.",
+          "Kadu reforça: falha em emergência exige bloqueio imediato.",
+          "Kadu orienta: parte móvel desprotegida é risco grave."
+        ],
+        scenarios: [
+          {
+            tag: "Prensamento",
+            title: "Proteção removida",
+            description: "A proteção da prensa foi retirada temporariamente para agilizar a produção.",
+            risk: "Risco SST: corte e prensamento por supressão de proteção.",
+            question: "Qual decisão é correta?",
+            options: [
+              { text: "Interromper a atividade e restabelecer a proteção antes de operar.", correct: true, feedback: "Correto. A operação só pode acontecer com proteção íntegra." },
+              { text: "Permitir por pouco tempo.", correct: false, feedback: "Incorreto. Não existe atalho seguro sem proteção." },
+              { text: "Autorizar apenas para operadores experientes.", correct: false, feedback: "Incorreto. Experiência não substitui proteção coletiva." }
+            ]
+          },
+          {
+            tag: "Emergência",
+            title: "Botão de parada com falha",
+            description: "No checklist, o operador percebe funcionamento duvidoso da parada de emergência.",
+            risk: "Risco SST: falha crítica em dispositivo de controle.",
+            question: "O que deve ser feito?",
+            options: [
+              { text: "Bloquear o uso do equipamento e acionar manutenção.", correct: true, feedback: "Correto. Dispositivo crítico com falha impede a operação." },
+              { text: "Operar com mais cautela.", correct: false, feedback: "Incorreto. Cautela não substitui controle funcional." },
+              { text: "Avisar a equipe e seguir.", correct: false, feedback: "Incorreto. Comunicação sem bloqueio não elimina o risco." }
+            ]
+          },
+          {
+            tag: "Intervenção",
+            title: "Peça travada na zona de perigo",
+            description: "Uma peça ficou presa e o operador pensa em alcançar rapidamente a área sem desligar a máquina.",
+            risk: "Risco SST: amputação, corte ou prensamento ao acessar zona de perigo.",
+            question: "Qual é a conduta segura?",
+            options: [
+              { text: "Não acessar a zona de risco sem condição segura e procedimento definido.", correct: true, feedback: "Correto. Intervenção exige parada segura e método definido." },
+              { text: "Retirar rapidamente com a mão.", correct: false, feedback: "Incorreto. É uma situação clássica de acidente grave." },
+              { text: "Pedir para alguém observar enquanto ele retira.", correct: false, feedback: "Incorreto. Observação não elimina o risco mecânico." }
+            ]
+          }
+        ]
+      },
 
-document.getElementById("ranking").innerHTML=html;
-}
+      {
+        id: "fase5",
+        title: "Fase 5 - Desafio Mestre",
+        shortTitle: "Desafio Mestre",
+        desc: "Integre percepção de risco, comportamento seguro, empilhadeira e prensa.",
+        tags: ["Desafio Final", "Integração", "Campeão"],
+        banner: "Renauxito orienta: agora é a hora de mostrar visão integrada de segurança.",
+        mascotLines: [
+          "Renauxito orienta: campeão pensa na operação inteira, não só na tarefa.",
+          "Latito recomenda: risco percebido cedo é risco controlado.",
+          "Kadu avisa: produção com segurança é sempre o melhor resultado."
+        ],
+        scenarios: [
+          {
+            tag: "Integração",
+            title: "Produção pressionando por velocidade",
+            description: "O turno está atrasado. Há sugestão de reduzir inspeções na prensa e acelerar circulação de empilhadeira.",
+            risk: "Risco SST: múltiplos desvios simultâneos por pressão produtiva.",
+            question: "Qual postura é correta?",
+            options: [
+              { text: "Manter os controles de segurança e recusar atalhos inseguros.", correct: true, feedback: "Correto. Nenhuma meta justifica a supressão de controles." },
+              { text: "Flexibilizar só naquele turno.", correct: false, feedback: "Incorreto. Desvio temporário continua sendo desvio." },
+              { text: "Eliminar apenas parte dos controles.", correct: false, feedback: "Incorreto. Segurança não pode ser simplificada arbitrariamente." }
+            ]
+          },
+          {
+            tag: "Cultura",
+            title: "Colega em desvio + quase acidente",
+            description: "Você percebe um desvio comportamental e, no mesmo dia, ocorre um quase acidente na área.",
+            risk: "Risco SST: repetição de condição insegura e enfraquecimento da cultura.",
+            question: "Qual é a resposta mais madura?",
+            options: [
+              { text: "Intervir, registrar, tratar a causa e reforçar a prevenção com a equipe.", correct: true, feedback: "Correto. Cultura forte combina intervenção, registro e ação." },
+              { text: "Resolver informalmente sem registro.", correct: false, feedback: "Incorreto. Sem rastreabilidade, o risco permanece." },
+              { text: "Aguardar um acidente real para formalizar.", correct: false, feedback: "Incorreto. A prevenção deve acontecer antes." }
+            ]
+          },
+          {
+            tag: "Campeão",
+            title: "Segurança como valor",
+            description: "Ao final do treinamento, a liderança pergunta qual é o maior sinal de maturidade em segurança.",
+            risk: "Risco SST: visão limitada da prevenção se a segurança for tratada apenas como obrigação.",
+            question: "Qual resposta representa melhor uma cultura madura?",
+            options: [
+              { text: "Agir corretamente mesmo sem fiscalização, tratando desvios e quase acidentes com seriedade.", correct: true, feedback: "Correto. Maturidade em segurança é comportamento consistente e preventivo." },
+              { text: "Ter poucos acidentes registrados, mesmo sem tratar desvios.", correct: false, feedback: "Incorreto. Baixo registro pode esconder fragilidade." },
+              { text: "Focar apenas em cobrar uso de EPI.", correct: false, feedback: "Incorreto. EPI é importante, mas cultura segura é mais ampla." }
+            ]
+          }
+        ]
+      }
+    ];
 
-</script>
+    const state = {
+      playerName: "",
+      score: 0,
+      hits: 0,
+      currentPhaseIndex: 0,
+      currentScenarioIndex: 0,
+      currentAnswered: false,
+      completedPhases: [],
+      unlockedPhases: [0],
+      rankingKey: "campeaoSegurancaMobileFasesRankingV1",
+      savedToRanking: false
+    };
 
+    const homeScreen = document.getElementById("homeScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const completionScreen = document.getElementById("completionScreen");
+
+    const playerNameInput = document.getElementById("playerName");
+    const savePlayerBtn = document.getElementById("savePlayerBtn");
+    const playerStatus = document.getElementById("playerStatus");
+    const hudName = document.getElementById("hudName");
+    const hudScore = document.getElementById("hudScore");
+    const hudPhase = document.getElementById("hudPhase");
+    const hudHits = document.getElementById("hudHits");
+    const mascotSpeech = document.getElementById("mascotSpeech");
+    const phasesGrid = document.getElementById("phasesGrid");
+    const overallProgressBar = document.getElementById("overallProgressBar");
+    const overallProgressText = document.getElementById("overallProgressText");
+    const rankingContainer = document.getElementById("rankingContainer");
+
+    const phaseHeaderTitle = document.getElementById("phaseHeaderTitle");
+    const phaseHeaderText = document.getElementById("phaseHeaderText");
+    const scenarioTag = document.getElementById("scenarioTag");
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const scenarioDescription = document.getElementById("scenarioDescription");
+    const riskReference = document.getElementById("riskReference");
+    const questionTitle = document.getElementById("questionTitle");
+    const optionsBox = document.getElementById("optionsBox");
+    const feedbackBox = document.getElementById("feedbackBox");
+    const nextBtn = document.getElementById("nextBtn");
+    const phaseProgressLabel = document.getElementById("phaseProgressLabel");
+    const phaseProgressPercent = document.getElementById("phaseProgressPercent");
+    const phaseProgressBar = document.getElementById("phaseProgressBar");
+
+    const finalScore = document.getElementById("finalScore");
+    const sumName = document.getElementById("sumName");
+    const sumLevel = document.getElementById("sumLevel");
+    const sumMedal = document.getElementById("sumMedal");
+    const sumHits = document.getElementById("sumHits");
+
+    const soundCorrect = document.getElementById("soundCorrect");
+    const soundError = document.getElementById("soundError");
+    const soundWin = document.getElementById("soundWin");
+
+    savePlayerBtn.addEventListener("click", savePlayerName);
+    playerNameInput.addEventListener("keydown", function(e){
+      if(e.key === "Enter") savePlayerName();
+    });
+
+    function init(){
+      renderHUD();
+      renderPhases();
+      renderRanking();
+      speak("Renauxito orienta: salve seu nome e avance fase por fase até se tornar Campeão da Segurança.");
+    }
+
+    function showScreen(screen){
+      [homeScreen, gameScreen, completionScreen].forEach(s => s.classList.remove("active"));
+      screen.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function savePlayerName(){
+      const value = playerNameInput.value.trim();
+      if(!value){
+        alert("Digite o nome do colaborador para continuar.");
+        return;
+      }
+      state.playerName = value;
+      playerStatus.textContent = "Colaborador identificado com sucesso.";
+      renderHUD();
+      speak("Kadu avisa: identificação confirmada. A Fase 1 já está liberada.");
+    }
+
+    function renderHUD(){
+      hudName.textContent = state.playerName || "-";
+      hudScore.textContent = state.score;
+      hudPhase.textContent = `${state.completedPhases.length}/${phases.length}`;
+      hudHits.textContent = state.hits;
+
+      const overall = Math.round((state.completedPhases.length / phases.length) * 100);
+      overallProgressBar.style.width = `${overall}%`;
+      overallProgressText.textContent = `${overall}%`;
+    }
+
+    function speak(text){
+      mascotSpeech.textContent = text;
+    }
+
+    function getRandomLine(phaseIndex){
+      const lines = phases[phaseIndex].mascotLines;
+      return lines[Math.floor(Math.random() * lines.length)];
+    }
+
+    function renderPhases(){
+      phasesGrid.innerHTML = "";
+
+      phases.forEach((phase, index) => {
+        const unlocked = state.unlockedPhases.includes(index);
+        const completed = state.completedPhases.includes(index);
+
+        const card = document.createElement("div");
+        card.className = "phase-card" + (!unlocked ? " locked-overlay" : "");
+
+        const statusText = completed
+          ? "Concluída"
+          : unlocked
+            ? "Liberada"
+            : "Bloqueada";
+
+        const badgeClass = completed ? "done" : unlocked ? "" : "locked";
+
+        card.innerHTML = `
+          <div class="phase-head">
+            <div>
+              <h3 class="phase-title">${phase.title}</h3>
+              <div class="phase-desc">${phase.desc}</div>
+            </div>
+            <span class="phase-badge ${badgeClass}">${statusText}</span>
+          </div>
+
+          <div class="phase-tags">
+            ${phase.tags.map(tag => `<span class="tag">${tag}</span>`).join("")}
+          </div>
+
+          <div class="phase-footer">
+            <div class="phase-status">${completed ? "✅ Fase concluída" : unlocked ? "▶ Pronta para jogar" : "🔒 Conclua a fase anterior"}</div>
+            <button class="${completed ? "btn-light" : "btn-primary"}" ${!unlocked ? "disabled" : ""} onclick="startPhase(${index})">
+              ${completed ? "Revisar fase" : unlocked ? "Iniciar fase" : "Bloqueada"}
+            </button>
+          </div>
+        `;
+        phasesGrid.appendChild(card);
+      });
+    }
+
+    function startPhase(index){
+      if(!state.playerName){
+        alert("Antes de iniciar, digite o nome do colaborador.");
+        playerNameInput.focus();
+        return;
+      }
+
+      if(!state.unlockedPhases.includes(index)){
+        alert("Essa fase ainda está bloqueada.");
+        return;
+      }
+
+      state.currentPhaseIndex = index;
+      state.currentScenarioIndex = 0;
+      state.currentAnswered = false;
+
+      const phase = phases[index];
+      phaseHeaderTitle.textContent = phase.title;
+      phaseHeaderText.textContent = phase.banner;
+      speak(getRandomLine(index));
+      renderScenario();
+      showScreen(gameScreen);
+    }
+
+    function renderScenario(){
+      const phase = phases[state.currentPhaseIndex];
+      const scenario = phase.scenarios[state.currentScenarioIndex];
+
+      scenarioTag.textContent = scenario.tag;
+      scenarioTitle.textContent = scenario.title;
+      scenarioDescription.textContent = scenario.description;
+      riskReference.innerHTML = `<strong>Base preventiva:</strong> ${scenario.risk}`;
+      questionTitle.textContent = scenario.question;
+      feedbackBox.className = "feedback";
+      feedbackBox.style.display = "none";
+      feedbackBox.textContent = "";
+      optionsBox.innerHTML = "";
+      nextBtn.disabled = true;
+
+      scenario.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<strong>${String.fromCharCode(65 + index)}.</strong> ${option.text}`;
+        btn.onclick = () => answerOption(btn, option.correct, option.feedback, scenario.options);
+        optionsBox.appendChild(btn);
+      });
+
+      const total = phase.scenarios.length;
+      const current = state.currentScenarioIndex + 1;
+      const percent = Math.round((state.currentScenarioIndex / total) * 100);
+      phaseProgressLabel.textContent = `Situação ${current} de ${total}`;
+      phaseProgressPercent.textContent = `${percent}%`;
+      phaseProgressBar.style.width = `${percent}%`;
+    }
+
+    function answerOption(button, isCorrect, feedback, allOptions){
+      if(state.currentAnswered) return;
+      state.currentAnswered = true;
+
+      const optionButtons = document.querySelectorAll(".option-btn");
+      optionButtons.forEach(btn => btn.disabled = true);
+
+      if(isCorrect){
+        state.score += 10;
+        state.hits += 1;
+        button.classList.add("correct","zoom-correct");
+        feedbackBox.className = "feedback ok";
+        feedbackBox.textContent = "✔ Excelente decisão segura. " + feedback;
+        safePlay(soundCorrect);
+      } else {
+        button.classList.add("error","shake-error");
+        feedbackBox.className = "feedback fail";
+        feedbackBox.textContent = "❌ Atenção. " + feedback;
+        safePlay(soundError);
+
+        allOptions.forEach((opt, idx)=>{
+          if(opt.correct && optionButtons[idx]){
+            optionButtons[idx].classList.add("correct");
+          }
+        });
+      }
+
+      feedbackBox.style.display = "block";
+      nextBtn.disabled = false;
+      renderHUD();
+    }
+
+    function nextScenario(){
+      const phase = phases[state.currentPhaseIndex];
+      state.currentScenarioIndex += 1;
+      state.currentAnswered = false;
+
+      if(state.currentScenarioIndex >= phase.scenarios.length){
+        finishPhase();
+        return;
+      }
+      renderScenario();
+    }
+
+    function finishPhase(){
+      const phaseIndex = state.currentPhaseIndex;
+
+      if(!state.completedPhases.includes(phaseIndex)){
+        state.completedPhases.push(phaseIndex);
+      }
+
+      const nextPhase = phaseIndex + 1;
+      if(nextPhase < phases.length && !state.unlockedPhases.includes(nextPhase)){
+        state.unlockedPhases.push(nextPhase);
+      }
+
+      renderHUD();
+      renderPhases();
+
+      if(state.completedPhases.length === phases.length){
+        finishJourney();
+        return;
+      }
+
+      const finishedPhase = phases[phaseIndex].shortTitle;
+      speak(`Parabéns! Você concluiu a fase "${finishedPhase}". A próxima fase foi liberada.`);
+      alert(`Fase concluída: ${finishedPhase}\n\nA próxima fase foi desbloqueada.`);
+      showScreen(homeScreen);
+    }
+
+    function finishJourney(){
+      safePlay(soundWin);
+
+      const medal = getMedal(state.score);
+      const level = getLevel(state.score);
+
+      finalScore.innerHTML = `${state.score} pontos<br><span style="font-size:24px">${medal}</span><br><span style="font-size:18px">${level}</span>`;
+      sumName.textContent = state.playerName || "-";
+      sumLevel.textContent = level;
+      sumMedal.textContent = medal;
+      sumHits.textContent = state.hits;
+
+      speak("Parabéns! Você concluiu todas as fases e alcançou nível profissional em segurança.");
+      showScreen(completionScreen);
+    }
+
+    function backToHome(){
+      showScreen(homeScreen);
+      speak("Renauxito orienta: escolha uma fase liberada para continuar sua jornada.");
+    }
+
+    function goHome(){
+      showScreen(homeScreen);
+    }
+
+    function resetJourney(){
+      state.score = 0;
+      state.hits = 0;
+      state.currentPhaseIndex = 0;
+      state.currentScenarioIndex = 0;
+      state.currentAnswered = false;
+      state.completedPhases = [];
+      state.unlockedPhases = [0];
+      state.savedToRanking = false;
+
+      renderHUD();
+      renderPhases();
+      showScreen(homeScreen);
+      speak("Jornada reiniciada. Vamos novamente, fase por fase, com foco total em segurança.");
+    }
+
+    function getMedal(score){
+      if(score >= 130) return "🥇 OURO";
+      if(score >= 90) return "🥈 PRATA";
+      return "🥉 BRONZE";
+    }
+
+    function getLevel(score){
+      if(score >= 130) return "Campeão da Segurança";
+      if(score >= 90) return "Intermediário";
+      return "Iniciante";
+    }
+
+    function safePlay(audio){
+      if(!audio) return;
+      try{
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      }catch(e){}
+    }
+
+    function getRanking(){
+      return JSON.parse(localStorage.getItem(state.rankingKey) || "[]");
+    }
+
+    function setRanking(data){
+      localStorage.setItem(state.rankingKey, JSON.stringify(data));
+    }
+
+    function saveToRanking(){
+      if(!state.playerName){
+        alert("Digite o nome do colaborador.");
+        return;
+      }
+
+      if(state.completedPhases.length < phases.length){
+        alert("Conclua todas as fases antes de salvar no ranking.");
+        return;
+      }
+
+      if(state.savedToRanking){
+        alert("Esse resultado já foi salvo no ranking nesta sessão.");
+        return;
+      }
+
+      const ranking = getRanking();
+      const now = new Date();
+
+      ranking.push({
+        nome: state.playerName,
+        pontuacao: state.score,
+        acertos: state.hits,
+        medalha: getMedal(state.score),
+        nivel: getLevel(state.score),
+        data: now.toLocaleDateString("pt-BR"),
+        hora: now.toLocaleTimeString("pt-BR")
+      });
+
+      ranking.sort((a,b) => b.pontuacao - a.pontuacao || b.acertos - a.acertos);
+      setRanking(ranking);
+      state.savedToRanking = true;
+      renderRanking();
+      alert("Pontuação salva no ranking com sucesso.");
+    }
+
+    function renderRanking(){
+      const ranking = getRanking();
+
+      if(!ranking.length){
+        rankingContainer.innerHTML = `<div class="ranking-empty">Nenhum resultado registrado ainda.</div>`;
+        return;
+      }
+
+      let html = `
+        <table class="ranking-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Pontos</th>
+              <th>Medalha</th>
+              <th>Nível</th>
+              <th>Data</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      ranking.forEach((item, index) => {
+        const pos = index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : (index + 1);
+        html += `
+          <tr class="${index === 0 ? "top1" : ""}">
+            <td><strong>${pos}</strong></td>
+            <td>${item.nome}</td>
+            <td><strong>${item.pontuacao}</strong></td>
+            <td>${item.medalha || "-"}</td>
+            <td>${item.nivel || "-"}</td>
+            <td>${item.data}</td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      rankingContainer.innerHTML = html;
+    }
+
+    function clearRanking(){
+      const ok = confirm("Deseja realmente apagar todo o ranking salvo?");
+      if(!ok) return;
+      localStorage.removeItem(state.rankingKey);
+      renderRanking();
+      alert("Ranking apagado com sucesso.");
+    }
+
+    function exportRankingExcel(){
+      const ranking = getRanking();
+
+      if(!ranking.length){
+        alert("Não há dados no ranking para exportar.");
+        return;
+      }
+
+      if(typeof XLSX === "undefined"){
+        alert("A biblioteca SheetJS não foi carregada. Verifique sua conexão com a internet.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(ranking);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Ranking Mobile SST");
+      XLSX.writeFile(workbook, "ranking-campeao-seguranca-mobile.xlsx");
+    }
+
+    function generateCertificate(){
+      if(!state.playerName){
+        alert("Digite o nome do colaborador.");
+        return;
+      }
+
+      if(state.completedPhases.length < phases.length){
+        alert("Conclua todas as fases antes de gerar o certificado.");
+        return;
+      }
+
+      const today = new Date().toLocaleDateString("pt-BR");
+      const medal = getMedal(state.score);
+      const level = getLevel(state.score);
+
+      const certWindow = window.open("", "_blank");
+      certWindow.document.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Certificado - Campeão da Segurança</title>
+          <style>
+            body{
+              margin:0;
+              font-family:Arial, Helvetica, sans-serif;
+              background:#f2f6fb;
+            }
+            .page{
+              width:1123px;
+              min-height:794px;
+              margin:20px auto;
+              background:#fff;
+              position:relative;
+              overflow:hidden;
+              border:18px solid #0b2e59;
+              box-shadow:0 12px 32px rgba(0,0,0,.15);
+            }
+            .top-band{
+              background:linear-gradient(135deg,#0b2e59,#123f75);
+              color:#fff;
+              padding:26px 40px;
+              display:flex;
+              justify-content:space-between;
+              align-items:center;
+            }
+            .top-band img.logo{
+              max-width:190px;
+            }
+            .content{
+              padding:38px 56px 24px;
+              text-align:center;
+            }
+            .title{
+              font-size:48px;
+              color:#0b2e59;
+              font-weight:900;
+              margin-bottom:8px;
+            }
+            .subtitle{
+              font-size:22px;
+              color:#2d567d;
+              margin-bottom:24px;
+            }
+            .text{
+              font-size:22px;
+              line-height:1.7;
+              color:#26445f;
+              margin:10px auto;
+              max-width:860px;
+            }
+            .name{
+              margin:26px auto 12px;
+              font-size:42px;
+              color:#17a34a;
+              font-weight:900;
+              border-bottom:3px solid #dce8f2;
+              display:inline-block;
+              padding:0 20px 12px;
+            }
+            .score{
+              margin-top:14px;
+              font-size:28px;
+              color:#0b2e59;
+              font-weight:bold;
+              line-height:1.4;
+            }
+            .date{
+              margin-top:12px;
+              font-size:20px;
+              color:#4a6884;
+            }
+            .mascots-wrap{
+              margin-top:28px;
+            }
+            .mascots-wrap img{
+              max-width:260px;
+              width:100%;
+              height:auto;
+              object-fit:contain;
+            }
+            .bottom{
+              display:flex;
+              justify-content:space-between;
+              align-items:flex-end;
+              padding:20px 56px 42px;
+            }
+            .signature{
+              text-align:center;
+              width:340px;
+            }
+            .signature .line{
+              border-top:2px solid #163d67;
+              margin-bottom:10px;
+            }
+            .signature strong{
+              color:#0b2e59;
+              font-size:22px;
+            }
+            .signature span{
+              display:block;
+              margin-top:4px;
+              color:#47637c;
+            }
+            .seal{
+              background:#eaf7ee;
+              color:#0f8b3b;
+              border:2px solid #17a34a;
+              border-radius:999px;
+              padding:12px 18px;
+              font-weight:900;
+              font-size:18px;
+            }
+            .footer-note{
+              position:absolute;
+              bottom:12px;
+              width:100%;
+              text-align:center;
+              color:#5a7188;
+              font-size:14px;
+            }
+            @media print{
+              body{background:#fff}
+              .page{margin:0;box-shadow:none}
+            }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="top-band">
+              <div>
+                <div style="font-size:16px;opacity:.9;">Programa Gamificado Mobile de SST</div>
+                <div style="font-size:28px;font-weight:900;">Campeão da Segurança</div>
+              </div>
+              <img src="logo-renaux.png" class="logo" alt="Logo Renaux">
+            </div>
+
+            <div class="content">
+              <div class="title">CERTIFICADO</div>
+              <div class="subtitle">Treinamento Gamificado Mobile com Sistema de Fases</div>
+
+              <div class="text">Certificamos que</div>
+              <div class="name">${state.playerName}</div>
+
+              <div class="text">
+                concluiu com êxito todas as fases do treinamento gamificado <strong>Campeão da Segurança</strong>,
+                com foco em <strong>percepção de risco, comportamento seguro, uso de EPI,
+                empilhadeira, prensa e cultura preventiva</strong>.
+              </div>
+
+              <div class="score">
+                Pontuação: ${state.score} pontos<br>
+                ${medal} - ${level}
+              </div>
+
+              <div class="date">Data de conclusão: ${today}</div>
+
+              <div class="mascots-wrap">
+                <img src="mascotes-campeao.png" alt="Mascotes da Segurança">
+              </div>
+            </div>
+
+            <div class="bottom">
+              <div class="signature">
+                <div class="line"></div>
+                <strong>SESMT</strong>
+                <span>Segurança e Saúde no Trabalho</span>
+              </div>
+
+              <div class="seal">Treinamento Concluído</div>
+            </div>
+
+            <div class="footer-note">
+              Documento gerado automaticamente pela Plataforma Mobile Gamificada de SST.
+            </div>
+          </div>
+
+          <script>
+            window.onload = function(){
+              setTimeout(function(){ window.print(); }, 400);
+            };
+          <\/script>
+        </body>
+        </html>
+      `);
+      certWindow.document.close();
+    }
+
+    init();
+  </script>
 </body>
 </html>
